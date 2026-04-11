@@ -22,8 +22,7 @@ public class PayrollService {
         for (User emp : employees) {
             if (!emp.isActive()) continue;
             SalaryStructure s = salaryRepo.findByEmployee(emp);
-            double gross = s.getBasic() + s.getHra() + s.getDa()
-                    + s.getSpecialAllowance() + s.getBonus();
+            double gross = s.getBasic() + s.getHra() + s.getDa() + s.getSpecialAllowance() + s.getBonus();
             double pf = 0.12 * (s.getBasic() + s.getDa());
             double esi = (gross <= 21000) ? 0.0075 * gross : 0;
             double pt = 200;
