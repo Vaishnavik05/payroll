@@ -3,6 +3,8 @@ import com.corporate.payroll.entity.User;
 import com.corporate.payroll.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import java.util.Optional;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -11,5 +13,32 @@ public class UserController {
     @PostMapping
     public User createUser(@RequestBody User user) {
         return userRepository.save(user);
+    }
+    @GetMapping
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+    @GetMapping("/{id}")
+    public Optional<User> getUserById(@PathVariable Long id) {
+        return userRepository.findById(id);
+    }
+    @PutMapping("/{id}")
+    public User updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
+        return userRepository.findById(id)
+            .map(user -> {
+                user.setName(updatedUser.getName());
+                user.setEmail(updatedUser.getEmail());
+                user.setEmployeeCode(updatedUser.getEmployeeCode());
+                user.setRole(updatedUser.getRole());
+                user.setDepartment(updatedUser.getDepartment());
+                user.setJoiningDate(updatedUser.getJoiningDate());
+                user.setActive(updatedUser.isActive());
+                return userRepository.save(user);
+            })
+            .orElseThrow(() -> new RuntimeException("User not found with id " + id));
+    }
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable Long id) {
+        userRepository.deleteById(id);
     }
 }
