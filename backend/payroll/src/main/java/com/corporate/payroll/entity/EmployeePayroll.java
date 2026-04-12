@@ -26,4 +26,10 @@ public class EmployeePayroll {
     private PayoutStatus status;
     private String bankReference;
     private LocalDateTime paidAt;
+    private Double basic;
+    private Double hra;
+    private Double da;
+    private Double specialAllowance;
+    private Double bonus;
+    private Double lta;
 }
