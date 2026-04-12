@@ -8,6 +8,7 @@ public class SalaryStructure {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String employeeCode;
     private Double basic;
     private Double hra;
     private Double da;

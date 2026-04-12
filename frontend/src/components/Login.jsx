@@ -1,62 +1,58 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "./Login.css";
 
-export default function Login({ onLogin, onSwitch }) {
-  const [form, setForm] = useState({ email: "", employeeCode: "" });
+export default function Login() {
+  const [role, setRole] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
-
-  const handleSubmit = async e => {
-    e.preventDefault();
+  const handleLogin = async () => {
     setError("");
-    try {
-      const payload = {
-        email: form.email.trim(),
-        employeeCode: form.employeeCode.trim()
-      };
-      const res = await fetch("http://localhost:8080/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      onLogin(res.data.role);
-    } catch (err) {
-      setError("Invalid email or employee code.");
+    
+    if (!role) {
+      setError("Select role");
+      return;
     }
+
+    setIsLoading(true);
+    
+    setTimeout(() => {
+      if (role === "ADMIN") navigate("/admin");
+      else if (role === "HR_MANAGER") navigate("/hr");
+      else if (role === "FINANCE") navigate("/finance");
+      else navigate("/employee");
+      setIsLoading(false);
+    }, 500);
   };
 
   return (
-    <div className="auth-container">
-      <form className="auth-card" onSubmit={handleSubmit}>
-        <h2>Sign In</h2>
-        <div className="auth-form-group">
-          <label>Email</label>
-          <input
-            name="email"
-            type="email"
-            placeholder="Enter your email"
-            value={form.email}
-            onChange={handleChange}
-            required
-            autoFocus
-          />
+    <div className="login-container">
+      <div className="login-card">
+        <h2>Login</h2>
+        
+        <div className="form-group">
+          <label>Select Role</label>
+          <select value={role} onChange={(e) => setRole(e.target.value)}>
+            <option value="">Select Role</option>
+            <option value="ADMIN">Admin</option>
+            <option value="HR_MANAGER">HR Manager</option>
+            <option value="FINANCE">Finance</option>
+            <option value="EMPLOYEE">Employee</option>
+          </select>
         </div>
-        <div className="auth-form-group">
-          <label>Employee Code</label>
-          <input
-            name="employeeCode"
-            placeholder="Enter your employee code"
-            value={form.employeeCode}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <button className="auth-btn" type="submit">Login</button>
-        {error && <div className="auth-error">{error}</div>}
-        <div className="auth-switch">
-          Don't have an account? <span onClick={onSwitch}>Register</span>
-        </div>
-      </form>
+
+        {error && <div className="error">{error}</div>}
+
+        <button 
+          className="login-btn"
+          onClick={handleLogin}
+          disabled={isLoading}
+        >
+          {isLoading ? 'Loading...' : 'Login'}
+        </button>
+      </div>
     </div>
   );
 }

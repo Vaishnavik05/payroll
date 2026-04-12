@@ -19,6 +19,7 @@ public class SalaryStructureController {
     @PostMapping
     public SalaryStructure createSalaryStructure(@RequestBody Map<String, Object> payload) {
         SalaryStructure salaryStructure = new SalaryStructure();
+        salaryStructure.setEmployeeCode(payload.get("employeeCode").toString());
         salaryStructure.setBasic(Double.valueOf(payload.get("basic").toString()));
         salaryStructure.setHra(Double.valueOf(payload.get("hra").toString()));
         salaryStructure.setDa(Double.valueOf(payload.get("da").toString()));
@@ -47,6 +48,9 @@ public class SalaryStructureController {
         SalaryStructure existing = salaryStructureRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "SalaryStructure not found with id " + id));
 
+        if (payload.containsKey("employeeCode")) {
+            existing.setEmployeeCode(payload.get("employeeCode").toString());
+        }
         existing.setBasic(Double.valueOf(payload.get("basic").toString()));
         existing.setHra(Double.valueOf(payload.get("hra").toString()));
         existing.setDa(Double.valueOf(payload.get("da").toString()));

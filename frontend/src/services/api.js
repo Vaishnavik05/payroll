@@ -1,8 +1,20 @@
 import axios from "axios";
+import { handleApiError, showErrorNotification } from './errorHandler';
+import './errorHandler.css';
 
 const API = axios.create({
   baseURL: "http://localhost:8080/api",
 });
+
+// Add response interceptor for error handling
+API.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const errorInfo = handleApiError(error);
+    showErrorNotification(errorInfo);
+    return Promise.reject(error);
+  }
+);
 
 export const createUser = (data) => API.post("/users", data);
 export const getUsers = () => API.get("/users");
