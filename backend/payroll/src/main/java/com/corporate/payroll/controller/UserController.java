@@ -1,6 +1,7 @@
 package com.corporate.payroll.controller;
 import com.corporate.payroll.entity.User;
 import com.corporate.payroll.repository.UserRepository;
+import com.corporate.payroll.enums.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -40,5 +41,15 @@ public class UserController {
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable Long id) {
         userRepository.deleteById(id);
+    }
+    @GetMapping("/role/{role}")
+    public List<User> getUsersByRole(@PathVariable String role) {
+        return userRepository.findAll().stream()
+            .filter(user -> user.getRole().name().equalsIgnoreCase(role))
+            .toList();
+    }
+    @GetMapping(params = "role")
+    public List<User> getUsersByRole(@RequestParam Role role) {
+        return userRepository.findByRole(role);
     }
 }

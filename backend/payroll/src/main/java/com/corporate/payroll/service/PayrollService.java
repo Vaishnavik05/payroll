@@ -13,15 +13,22 @@ public class PayrollService {
     private final PayrollCycleRepository cycleRepo;
     private final EmployeePayrollRepository payrollRepo;
     public void processPayroll(Long cycleId) {
-        PayrollCycle cycle = cycleRepo.findById(cycleId).orElseThrow();
+        PayrollCycle cycle = cycleRepo.findById(cycleId)
+                .orElseThrow(() -> new RuntimeException("Payroll cycle not found"));
         if (cycle.getStatus() != PayrollStatus.DRAFT) {
             throw new RuntimeException("Payroll already processed");
         }
         cycle.setStatus(PayrollStatus.PROCESSING);
+        cycleRepo.save(cycle);
         List<User> employees = userRepo.findAll();
         for (User emp : employees) {
             if (!emp.isActive()) continue;
-            SalaryStructure s = salaryRepo.findByEmployee(emp);
+            List<SalaryStructure> structures = salaryRepo.findByEmployee(emp);
+            if (structures == null || structures.isEmpty()) continue;
+            SalaryStructure s = structures.stream()
+                    .max((a, b) -> a.getEffectiveFrom().compareTo(b.getEffectiveFrom()))
+                    .orElse(null);
+            if (s == null) continue;
             double gross = s.getBasic() + s.getHra() + s.getDa() + s.getSpecialAllowance() + s.getBonus();
             double pf = 0.12 * (s.getBasic() + s.getDa());
             double esi = (gross <= 21000) ? 0.0075 * gross : 0;
