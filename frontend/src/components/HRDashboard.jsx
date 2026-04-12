@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import CreateSalary from "./CreateSalary";
 import UpdateSalary from "./UpdateSalary";
 import ViewSalaryStructures from "./ViewSalaryStructures";
+import DeductionRuleForm from "./DeductionRuleForm";
 import { getUsers } from "../services/api";
 import "./HRDashboard.css";
 
@@ -45,6 +46,8 @@ export default function HRDashboard() {
         return <UpdateSalary />;
       case "view":
         return <ViewSalaryStructures />;
+      case "deduction":
+        return <DeductionRuleForm />;
       default:
         return null;
     }
@@ -135,6 +138,12 @@ export default function HRDashboard() {
           onClick={() => setActiveForm(activeForm === "view" ? "" : "view")}
         >
           View Salary Structures
+        </button>
+        <button 
+          className={`nav-btn ${activeForm === "deduction" ? "active" : ""}`}
+          onClick={() => setActiveForm(activeForm === "deduction" ? "" : "deduction")}
+        >
+          Manage Deduction Rules
         </button>
       </div>
 

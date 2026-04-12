@@ -13,14 +13,20 @@ export default function FinanceDashboard() {
     processingPayrolls: 0,
     totalAmount: 0
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchFinanceStats();
   }, []);
 
   const fetchFinanceStats = async () => {
+    setLoading(true);
+    setError(null);
     try {
+      console.log("Fetching finance stats...");
       const response = await getPayrolls();
+      console.log("API response:", response);
       const payrolls = response.data || [];
       
       const totalPayrolls = payrolls.length;
@@ -36,8 +42,12 @@ export default function FinanceDashboard() {
         processingPayrolls: processingPayrolls,
         totalAmount: totalAmount
       });
+      console.log("Stats updated:", {
+        totalPayrolls, processedPayrolls, draftPayrolls, processingPayrolls, totalAmount
+      });
     } catch (err) {
       console.error("Error fetching finance stats:", err);
+      setError(err.message || "Failed to fetch finance data");
       setStats({
         totalPayrolls: 0,
         processedPayrolls: 0,
@@ -45,6 +55,8 @@ export default function FinanceDashboard() {
         processingPayrolls: 0,
         totalAmount: 0
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -60,6 +72,27 @@ export default function FinanceDashboard() {
   };
 
   const renderStats = () => {
+    if (loading) {
+      return (
+        <div className="dashboard-stats">
+          <h2>Finance Overview - All Users</h2>
+          <div className="loading-message">Loading finance data...</div>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="dashboard-stats">
+          <h2>Finance Overview - All Users</h2>
+          <div className="error-message">
+            <p>Error: {error}</p>
+            <button onClick={fetchFinanceStats} className="retry-btn">Retry</button>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="dashboard-stats">
         <h2>Finance Overview - All Users</h2>

@@ -7,8 +7,34 @@
   max-width: 600px;
 }
 
+.form-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.back-btn:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
 .create-salary-container h2 {
-  margin: 0 0 25px 0;
+  margin: 0;
   color: #2c3e50;
   font-size: 24px;
   border-bottom: 3px solid #3498db;
@@ -186,6 +212,12 @@
   .create-salary-container {
     padding: 20px;
     margin: 10px;
+  }
+  
+  .form-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
   
   .create-salary-container h2 {

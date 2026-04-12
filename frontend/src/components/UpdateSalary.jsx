@@ -10,6 +10,10 @@ export default function UpdateSalary() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const handleBack = () => {
+    window.location.href = '/hr';
+  };
+
   useEffect(() => {
     fetchEmployees();
   }, []);
@@ -103,7 +107,15 @@ export default function UpdateSalary() {
 
   return (
     <div className="create-salary-container">
-      <h2>Update Salary Structure</h2>
+      <div className="form-header">
+        <button className="back-btn" onClick={handleBack}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+          Back to Dashboard
+        </button>
+        <h2>Update Salary Structure</h2>
+      </div>
       
       {error && <div className="error-message">{error}</div>}
       {success && <div className="success-message">{success}</div>}

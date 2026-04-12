@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import ViewPayroll from "./ViewPayroll";
-import ViewTax from "./ViewTax";
+import ViewTaxComputation from "./ViewTaxComputation";
 import { getEmployeePayroll } from "../services/api";
 import "./EmployeeDashboard.css";
 
@@ -40,8 +40,8 @@ export default function EmployeeDashboard() {
     switch(activeView) {
       case "payroll":
         return <ViewPayroll />;
-      case "tax":
-        return <ViewTax />;
+      case "tax-computation":
+        return <ViewTaxComputation />;
       default:
         return (
           <div className="dashboard-overview">
@@ -97,11 +97,11 @@ export default function EmployeeDashboard() {
         >
           Payroll
         </button>
-        <button 
-          className={`tab-btn ${activeView === "tax" ? "active" : ""}`}
-          onClick={() => setActiveView("tax")}
+                <button 
+          className={`tab-btn ${activeView === "tax-computation" ? "active" : ""}`}
+          onClick={() => setActiveView("tax-computation")}
         >
-          Tax
+          Tax Details & Computation
         </button>
       </div>
 

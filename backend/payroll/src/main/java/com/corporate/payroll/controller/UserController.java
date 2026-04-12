@@ -52,4 +52,25 @@ public class UserController {
     public List<User> getUsersByRole(@RequestParam Role role) {
         return userRepository.findByRole(role);
     }
+    @GetMapping("/employee-code/{employeeCode}")
+    public User getUserByEmployeeCode(@PathVariable String employeeCode) {
+        System.out.println("Searching for employee with code: '" + employeeCode + "'");
+        return userRepository.findByEmployeeCode(employeeCode)
+            .map(user -> {
+                System.out.println("Found employee: " + user.getName() + " with code: " + user.getEmployeeCode());
+                return user;
+            })
+            .orElseThrow(() -> {
+                System.out.println("Employee not found with code: '" + employeeCode + "'");
+                return new RuntimeException("Employee with code '" + employeeCode + "' not found");
+            });
+    }
+    
+    @GetMapping("/test/all-users")
+    public List<User> getAllUsersForTest() {
+        System.out.println("Total users in database: " + userRepository.count());
+        List<User> users = userRepository.findAll();
+        users.forEach(user -> System.out.println("User: " + user.getName() + ", Code: " + user.getEmployeeCode() + ", ID: " + user.getId()));
+        return users;
+    }
 }
