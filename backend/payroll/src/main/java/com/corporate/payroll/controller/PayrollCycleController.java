@@ -30,7 +30,6 @@ public class PayrollCycleController {
         payrollCycle.setStartDate(request.getStartDate());
         payrollCycle.setEndDate(request.getEndDate());
         payrollCycle.setPaymentDate(request.getPaymentDate());
-        payrollCycle.setDescription(request.getDescription());
         payrollCycle.setStatus(PayrollStatus.DRAFT);
         
         PayrollCycle saved = payrollCycleRepository.save(payrollCycle);
@@ -64,7 +63,6 @@ public class PayrollCycleController {
                     cycle.setStartDate(request.getStartDate());
                     cycle.setEndDate(request.getEndDate());
                     cycle.setPaymentDate(request.getPaymentDate());
-                    cycle.setDescription(request.getDescription());
                     return payrollCycleRepository.save(cycle);
                 })
                 .map(updated -> ResponseEntity.ok(convertToResponse(updated)))
@@ -139,7 +137,6 @@ public class PayrollCycleController {
         response.setEndDate(cycle.getEndDate());
         response.setPaymentDate(cycle.getPaymentDate());
         response.setStatus(cycle.getStatus());
-        response.setDescription(cycle.getDescription());
         response.setFinancialYear(cycle.getYear() + "-" + (cycle.getYear() + 1));
         // These would be calculated based on actual payroll data
         response.setTotalEmployees(0);

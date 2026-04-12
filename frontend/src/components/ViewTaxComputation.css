@@ -1,97 +1,133 @@
 .tax-computation-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 32px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f8f9fa;
-  min-height: 100vh;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  margin: 24px auto;
+  min-height: calc(100vh - 200px);
 }
 
 .form-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 15px;
+  gap: 24px;
   margin-bottom: 32px;
-  padding: 20px 24px;
-  background: white;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e5e7eb;
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .back-btn {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #6c757d;
+  background: linear-gradient(135deg, #6b7280, #4b5563);
   color: white;
   border: none;
-  padding: 10px 18px;
-  border-radius: 8px;
+  padding: 12px 20px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(107, 114, 128, 0.2);
 }
 
 .back-btn:hover {
-  background: #5a6268;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  background: linear-gradient(135deg, #4b5563, #374151);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+}
+
+.clear-btn {
+  background: linear-gradient(135deg, #64748b, #475569);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(100, 116, 139, 0.2);
+}
+
+.clear-btn:hover {
+  background: linear-gradient(135deg, #475569, #334155);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3);
 }
 
 .form-header h3 {
   margin: 0;
-  color: #2c3e50;
-  font-size: 28px;
+  color: #1f2937;
+  font-size: 32px;
   font-weight: 700;
   text-align: center;
   flex: 1;
+  background: linear-gradient(135deg, #1f2937, #374151);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .controls-section {
   background: white;
-  padding: 24px;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
   margin-bottom: 32px;
+  border: 1px solid #e5e7eb;
 }
 
 .view-mode-toggle {
   display: flex;
-  gap: 12px;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
+  gap: 8px;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
   border-bottom: 2px solid #f1f3f4;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 16px;
 }
 
 .mode-btn {
-  padding: 10px 20px;
+  padding: 12px 24px;
   border: 2px solid #e5e7eb;
   background: white;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   transition: all 0.3s ease;
+  flex: 1;
+  text-align: center;
 }
 
 .mode-btn.active {
-  background: #3b82f6;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: white;
   border-color: #3b82f6;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
 }
 
 .mode-btn:hover:not(.active) {
   border-color: #3b82f6;
   background: #f8fafc;
+  transform: translateY(-1px);
 }
 
 .input-controls {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
   align-items: end;
 }
 
@@ -105,73 +141,118 @@
   font-weight: 600;
   color: #374151;
   font-size: 14px;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .input-group input {
-  padding: 12px 16px;
+  padding: 14px 18px;
   border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: 10px;
+  font-size: 15px;
   transition: all 0.3s ease;
-  background: #ffffff;
+  background: white;
   font-family: inherit;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .input-group input:focus {
   outline: none;
   border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 1px 3px rgba(0, 0, 0, 0.05);
   background: #fefefe;
+  transform: translateY(-1px);
+}
+
+.input-group input.error {
+  border-color: #ef4444;
+  background: #fef2f2;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.error-text {
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 4px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  animation: slideIn 0.3s ease-out;
 }
 
 .button-group {
   display: flex;
-  gap: 12px;
-  margin-top: 8px;
+  gap: 16px;
+  margin-top: 24px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .fetch-btn {
-  background: #3b82f6;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: white;
   border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
+  padding: 14px 28px;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  min-width: 140px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .fetch-btn:hover:not(:disabled) {
-  background: #2563eb;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
 }
 
 .fetch-btn:disabled {
-  background: #9ca3af;
+  background: linear-gradient(135deg, #9ca3af, #6b7280);
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
+  opacity: 0.7;
 }
 
 .fetch-btn.secondary {
-  background: #6b7280;
-  box-shadow: 0 2px 4px rgba(107, 114, 128, 0.2);
+  background: linear-gradient(135deg, #6b7280, #4b5563);
+  box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3);
 }
 
 .fetch-btn.secondary:hover:not(:disabled) {
-  background: #4b5563;
-  box-shadow: 0 4px 8px rgba(107, 114, 128, 0.3);
+  background: linear-gradient(135deg, #4b5563, #374151);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.4);
 }
 
-.results-section {
+.tax-results {
   background: white;
-  padding: 32px;
+  border-radius: 16px;
+  padding: 40px;
+  min-height: 300px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin-top: 40px;
+}
+
+.tax-summary-item {
+  background: white;
+  padding: 20px 24px;
   border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  border-left: 4px solid #28a745;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
 }
 
 .summary-card {
@@ -187,9 +268,9 @@
   border-bottom: 2px solid #f1f3f4;
 }
 
-.summary-grid {
+.tax-summary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 20px;
 }
 
@@ -213,45 +294,54 @@
   font-weight: 700;
   color: #1f2937;
   font-size: 16px;
+  background: linear-gradient(135deg, #1f2937, #374151);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.tax-data-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 32px;
 }
 
 .tax-data-grid h4 {
   margin: 0 0 24px 0;
-  color: #2c3e50;
+  color: #1f2937;
   font-size: 20px;
   font-weight: 600;
   padding-bottom: 12px;
   border-bottom: 2px solid #f1f3f4;
 }
 
-.tax-data-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 24px;
-}
-
 .tax-card {
+  background: white;
   border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 24px;
-  background: #ffffff;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border-top: 4px solid #3b82f6;
+  position: relative;
 }
 
 .tax-card:hover {
-  box-shadow: 0 8px 25px rgba(0,0,0,0.12);
-  transform: translateY(-3px);
-  border-color: #d1d5db;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .tax-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #f1f3f4;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #f1f3f4;
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  margin: -28px -28px 24px -28px;
+  padding: 20px 28px;
+  border-radius: 16px 16px 0 0;
 }
 
 .tax-header h5 {
@@ -261,142 +351,361 @@
   font-weight: 700;
   flex: 1;
   line-height: 1.3;
-}
-
-.status-badge {
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.status-badge.computed {
-  background: #dcfce7;
-  color: #166534;
-  border: 1px solid #bbf7d0;
-}
-
-.tax-details {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  background: linear-gradient(135deg, #1f2937, #374151);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .detail-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 0;
+  padding: 16px 20px;
   border-bottom: 1px solid #f1f3f4;
+  transition: all 0.2s ease;
+  background: white;
+  margin: 0 -20px;
 }
 
 .detail-row:last-child {
   border-bottom: none;
+  border-radius: 0 0 8px 8px;
 }
 
 .detail-label {
   font-weight: 600;
-  color: #1f2937;
+  color: #4b5563;
   font-size: 13px;
   min-width: 140px;
   flex-shrink: 0;
 }
 
 .detail-value {
-  color: #4b5563;
+  color: #1f2937;
   font-size: 14px;
   text-align: right;
   flex: 1;
   font-weight: 600;
+  font-family: 'Segoe UI', monospace;
+}
+
+.detail-row:hover {
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  transform: translateX(4px);
+  border-radius: 0 8px 8px 0;
+}
+
+.results-section {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  min-height: 400px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  margin-top: 32px;
+  border: 1px solid #e5e7eb;
 }
 
 .no-data {
   text-align: center;
-  padding: 60px 20px;
+  padding: 80px 40px;
   color: #6b7280;
-  background: #f9fafb;
-  border-radius: 8px;
-  border: 2px dashed #d1d5db;
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  border-radius: 16px;
+  border: 2px dashed #cbd5e1;
+  margin: 32px 0;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.no-data:hover {
+  border-color: #94a3b8;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.no-data-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 24px;
+}
+
+.no-data-icon {
+  margin-bottom: 24px;
+  opacity: 0.7;
+  animation: float 3s ease-in-out infinite;
+}
+
+.no-data-icon svg {
+  color: #64748b;
+  filter: drop-shadow(0 2px 4px rgba(100, 116, 139, 0.2));
 }
 
 .no-data h4 {
-  margin: 0 0 12px 0;
-  font-size: 18px;
+  margin: 0 0 16px 0;
+  color: #475569;
+  font-size: 24px;
   font-weight: 600;
-  color: #4b5563;
 }
 
 .no-data p {
-  margin: 0;
+  margin: 0 0 32px 0;
+  color: #64748b;
   font-size: 16px;
-  font-weight: 500;
+  line-height: 1.6;
+  max-width: 500px;
+}
+
+.tax-controls {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 40px;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .error-message {
-  background: #fef2f2;
+  background: linear-gradient(135deg, #fef2f2, #fee2e2);
   color: #991b1b;
   padding: 16px 20px;
-  border-radius: 8px;
+  border-radius: 12px;
   margin-bottom: 24px;
   border: 1px solid #fecaca;
   font-size: 14px;
   font-weight: 500;
-  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.1);
+  box-shadow: 0 4px 6px rgba(239, 68, 68, 0.1);
+  animation: slideIn 0.3s ease-out;
 }
 
+.error-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.error-content {
+  line-height: 1.5;
+}
+
+.success-message {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  color: #166534;
+  padding: 16px 20px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  border: 1px solid #bbf7d0;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 4px 6px rgba(34, 197, 94, 0.1);
+  animation: slideIn 0.3s ease-out;
+}
+
+.success-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.success-content {
+  line-height: 1.5;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* Tax Deduction Breakdown Styles */
+.tax-deduction-breakdown {
+  margin-top: 32px;
+  padding: 24px;
+  background: linear-gradient(135deg, #fff5f5, #fef2f2);
+  border-radius: 16px;
+  border: 1px solid #fecaca;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
+}
+
+.tax-deduction-breakdown h6 {
+  margin: 0 0 20px 0;
+  color: #dc2626;
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.deduction-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  background: white;
+  border-radius: 8px;
+  border-left: 3px solid #dc2626;
+  transition: all 0.2s ease;
+}
+
+.deduction-item:hover {
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.15);
+}
+
+.deduction-item .deduction-name {
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+}
+
+.deduction-item .deduction-amount {
+  font-weight: 700;
+  color: #dc2626;
+  font-size: 16px;
+}
+
+.deduction-item .deduction-formula {
+  font-size: 12px;
+  color: #6b7280;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.total-deduction-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  margin-top: 16px;
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: white;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 18px;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Tax Summary Enhancements */
+.tax-summary-card.detailed {
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+  border: 1px solid #bae6fd;
+}
+
+.tax-summary-card.detailed h4 {
+  color: #0369a1;
+}
+
+.tax-summary-item.highlight {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border-left: 4px solid #f59e0b;
+  transform: scale(1.02);
+}
+
+.tax-summary-item.highlight .value {
+  color: #d97706;
+}
+
+/* Responsive Improvements */
 @media (max-width: 768px) {
   .tax-computation-container {
-    padding: 16px;
+    padding: 20px;
+    margin: 16px auto;
   }
   
   .form-header {
     flex-direction: column;
-    align-items: stretch;
     gap: 16px;
-    padding: 16px;
+    padding: 20px;
   }
   
   .form-header h3 {
-    text-align: center;
     font-size: 24px;
+    text-align: center;
   }
   
-  .controls-section,
-  .results-section {
-    padding: 20px;
+  .controls-section {
+    padding: 24px;
   }
   
   .view-mode-toggle {
     flex-direction: column;
     gap: 8px;
+    padding: 12px;
+  }
+  
+  .mode-btn {
+    padding: 10px 16px;
   }
   
   .input-controls {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 20px;
   }
   
   .button-group {
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
   }
   
-  .summary-grid,
-  .tax-data-grid {
+  .fetch-btn {
+    width: 100%;
+    padding: 12px 20px;
+  }
+  
+  .results-section {
+    padding: 24px;
+  }
+  
+  .summary-grid {
     grid-template-columns: 1fr;
     gap: 16px;
   }
   
-  .summary-item {
-    padding: 12px 16px;
+  .tax-data-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .tax-card {
+    padding: 20px;
   }
   
   .detail-row {
     flex-direction: column;
     align-items: flex-start;
-    gap: 4px;
+    gap: 8px;
+    padding: 12px 0;
   }
   
   .detail-label {
@@ -406,9 +715,133 @@
   .detail-value {
     text-align: left;
   }
+  
+  .no-data {
+    padding: 60px 20px;
+  }
+  
+  .no-data h4 {
+    font-size: 20px;
+  }
+  
+  .no-data p {
+    font-size: 14px;
+  }
+  
+  .error-message,
+  .success-message {
+    margin-bottom: 16px;
+    padding: 12px 16px;
+  }
+  
+  .no-data-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .clear-btn {
+    width: 100%;
+    max-width: 200px;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.fetch-btn.loading {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.fetch-btn.loading .loading-spinner {
+  display: inline-block;
 }
 
 @media (max-width: 480px) {
+  .tax-computation-container {
+    padding: 16px;
+  }
+  
+  .form-header {
+    padding: 16px;
+  }
+  
+  .form-header h3 {
+    font-size: 20px;
+  }
+  
+  .controls-section,
+  .results-section {
+    padding: 20px;
+  }
+  
+  .view-mode-toggle {
+    padding: 8px;
+  }
+  
+  .mode-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  
+  .input-group input {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+  
+  .fetch-btn {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+  
+  .summary-item {
+    padding: 12px 16px;
+  }
+  
+  .tax-card {
+    padding: 16px;
+  }
+  
+  .detail-row {
+    padding: 10px 0;
+  }
+  
+  .no-data {
+    padding: 40px 16px;
+  }
+  
+  .no-data h4 {
+    font-size: 18px;
+  }
+  
+  .no-data p {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 320px) {
   .tax-computation-container {
     padding: 12px;
   }
@@ -417,12 +850,21 @@
     padding: 12px;
   }
   
+  .form-header h3 {
+    font-size: 18px;
+  }
+  
   .controls-section,
   .results-section {
     padding: 16px;
   }
   
-  .form-header h3 {
-    font-size: 20px;
+  .back-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  
+  .no-data {
+    padding: 30px 12px;
   }
 }

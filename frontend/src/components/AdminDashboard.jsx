@@ -30,7 +30,7 @@ export default function AdminDashboard() {
       const totalUsers = users.length;
       const totalRoles = [...new Set(users.map(emp => emp.role))].length;
       const totalDepartments = [...new Set(users.map(emp => emp.department).filter(Boolean))].length;
-      const activeUsers = users.filter(emp => emp.is_active == 1).length;
+      const activeUsers = users.filter(emp => emp.isActive === true).length;
       
       setStats({
         totalUsers: totalUsers,
@@ -74,7 +74,7 @@ export default function AdminDashboard() {
         filtered = users.filter(user => user.department);
         break;
       case "active":
-        filtered = users.filter(user => user.is_active == 1);
+        filtered = users.filter(user => user.isActive === true);
         break;
       default:
         filtered = [];
@@ -248,8 +248,8 @@ export default function AdminDashboard() {
                     </td>
                     <td>{user.department || 'N/A'}</td>
                     <td>
-                      <span className={`status-badge ${user.is_active == 1 ? 'active' : 'inactive'}`}>
-                        {user.is_active == 1 ? 'Active' : 'Inactive'}
+                      <span className={`status-badge ${user.isActive === true ? 'active' : 'inactive'}`}>
+                        {user.isActive === true ? 'Active' : 'Inactive'}
                       </span>
                     </td>
                   </tr>

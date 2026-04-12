@@ -27,15 +27,10 @@ public class TaxComputationController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/employee/{employeeId}")
-    public ResponseEntity<List<TaxComputation>> getTaxComputationsByEmployee(@PathVariable String employeeId) {
-        try {
-            Long empId = Long.parseLong(employeeId);
-            List<TaxComputation> computations = taxComputationRepository.findByEmployeeIdOrderByCreatedAtDesc(empId);
-            return ResponseEntity.ok(computations);
-        } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().build();
-        }
+    @GetMapping("/employee/{employeeCode}")
+    public ResponseEntity<List<TaxComputation>> getTaxComputationsByEmployee(@PathVariable String employeeCode) {
+        List<TaxComputation> computations = taxComputationRepository.findByEmployeeEmployeeCodeOrderByCreatedAtDesc(employeeCode);
+        return ResponseEntity.ok(computations);
     }
 
     @GetMapping("/financial-year/{financialYear}")
@@ -44,30 +39,20 @@ public class TaxComputationController {
         return ResponseEntity.ok(computations);
     }
 
-    @GetMapping("/employee/{employeeId}/financial-year/{financialYear}")
+    @GetMapping("/employee/{employeeCode}/financial-year/{financialYear}")
     public ResponseEntity<List<TaxComputation>> getTaxComputationsByEmployeeAndFinancialYear(
-            @PathVariable String employeeId, 
+            @PathVariable String employeeCode, 
             @PathVariable String financialYear) {
-        try {
-            Long empId = Long.parseLong(employeeId);
-            List<TaxComputation> computations = taxComputationRepository.findByEmployeeIdAndFinancialYearOrderByCreatedAtDesc(empId, financialYear);
-            return ResponseEntity.ok(computations);
-        } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        List<TaxComputation> computations = taxComputationRepository.findByEmployeeEmployeeCodeAndFinancialYearOrderByCreatedAtDesc(employeeCode, financialYear);
+        return ResponseEntity.ok(computations);
     }
 
-    @GetMapping("/employee/{employeeId}/latest")
-    public ResponseEntity<TaxComputation> getLatestTaxComputationByEmployee(@PathVariable String employeeId) {
-        try {
-            Long empId = Long.parseLong(employeeId);
-            List<TaxComputation> computations = taxComputationRepository.findByEmployeeIdOrderByCreatedAtDesc(empId);
-            return computations.isEmpty() ? 
-                ResponseEntity.notFound().build() : 
-                ResponseEntity.ok(computations.get(0));
-        } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().build();
-        }
+    @GetMapping("/employee/{employeeCode}/latest")
+    public ResponseEntity<TaxComputation> getLatestTaxComputationByEmployee(@PathVariable String employeeCode) {
+        List<TaxComputation> computations = taxComputationRepository.findByEmployeeEmployeeCodeOrderByCreatedAtDesc(employeeCode);
+        return computations.isEmpty() ? 
+            ResponseEntity.notFound().build() : 
+            ResponseEntity.ok(computations.get(0));
     }
 
     @GetMapping("/summary/financial-year/{financialYear}")
@@ -79,7 +64,7 @@ public class TaxComputationController {
         double totalEmployees = computations.size();
         double totalTax = computations.stream().mapToDouble(TaxComputation::getTotalTax).sum();
         double totalTDS = computations.stream().mapToDouble(TaxComputation::getTdsDeducted).sum();
-        double totalIncome = computations.stream().mapToDouble(TaxComputation::getAnnualIncome).sum();
+        double totalIncome = computations.stream().mapToDouble(TaxComputation::getTotalIncome).sum();
         
         var summary = java.util.Map.of(
                 "financialYear", financialYear,

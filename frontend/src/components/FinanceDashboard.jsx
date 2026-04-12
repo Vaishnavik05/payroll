@@ -15,6 +15,9 @@ export default function FinanceDashboard() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [filteredPayrolls, setFilteredPayrolls] = useState([]);
+  const [showFilteredView, setShowFilteredView] = useState(false);
+  const [filterType, setFilterType] = useState("");
 
   useEffect(() => {
     fetchFinanceStats();
@@ -60,15 +63,153 @@ export default function FinanceDashboard() {
     }
   };
 
-  const renderForm = () => {
-    switch(activeForm) {
-      case "create":
-        return <CreatePayroll />;
-      case "process":
-        return <ProcessPayroll />;
-      default:
-        return null;
+  const handleStatCardClick = async (type) => {
+    setLoading(true);
+    try {
+      const response = await getPayrolls();
+      const allPayrolls = response.data || [];
+      let filtered = [];
+      
+      switch(type) {
+        case 'total':
+          filtered = allPayrolls;
+          break;
+        case 'completed':
+          filtered = allPayrolls.filter(p => p.status === 'COMPLETED');
+          break;
+        case 'draft':
+          filtered = allPayrolls.filter(p => p.status === 'DRAFT');
+          break;
+        case 'processing':
+          filtered = allPayrolls.filter(p => p.status === 'PROCESSING');
+          break;
+        default:
+          filtered = allPayrolls;
+      }
+      
+      setFilteredPayrolls(filtered);
+      setFilterType(type);
+      setShowFilteredView(true);
+      setActiveForm("");
+    } catch (err) {
+      setError("Failed to fetch payroll cycles: " + (err.response?.data?.message || err.message));
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleBackToDashboard = () => {
+    setShowFilteredView(false);
+    setFilteredPayrolls([]);
+    setFilterType("");
+  };
+
+  const renderFilteredView = () => {
+    const getFilterTitle = () => {
+      switch(filterType) {
+        case 'total':
+          return 'All Payroll Cycles';
+        case 'completed':
+          return 'Completed Payroll Cycles';
+        case 'draft':
+          return 'Draft Payroll Cycles';
+        case 'processing':
+          return 'Processing Payroll Cycles';
+        default:
+          return 'Payroll Cycles';
+      }
+    };
+
+    const getStatusColor = (status) => {
+      switch(status) {
+        case 'COMPLETED':
+          return '#10b981';
+        case 'DRAFT':
+          return '#6b7280';
+        case 'PROCESSING':
+          return '#f59e0b';
+        default:
+          return '#6b7280';
+      }
+    };
+
+    return (
+      <div className="filtered-payroll-view">
+        <div className="filtered-header">
+          <button className="back-btn" onClick={handleBackToDashboard}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to Dashboard
+          </button>
+          <h2>{getFilterTitle()}</h2>
+          <div className="result-count">{filteredPayrolls.length} result{filteredPayrolls.length !== 1 ? 's' : ''}</div>
+        </div>
+        
+        {loading && (
+          <div className="loading-message">Loading payroll cycles...</div>
+        )}
+        
+        {error && (
+          <div className="error-message">
+            <p>Error: {error}</p>
+            <button onClick={() => handleStatCardClick(filterType)} className="retry-btn">Retry</button>
+          </div>
+        )}
+        
+        {!loading && !error && filteredPayrolls.length === 0 && (
+          <div className="empty-state">
+            <div className="empty-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 11l3 3L22 9l-3-3"/>
+                <path d="M21 12v-1a2 2 0 0 0-2-2h-3"/>
+                <path d="M8 21H4"/>
+              </svg>
+            </div>
+            <h3>No payroll cycles found</h3>
+            <p>No payroll cycles match the selected filter.</p>
+          </div>
+        )}
+        
+        {!loading && !error && filteredPayrolls.length > 0 && (
+          <div className="payroll-list">
+            {filteredPayrolls.map(payroll => (
+              <div key={payroll.id} className="payroll-item">
+                <div className="payroll-header">
+                  <div className="payroll-id">ID: {payroll.id}</div>
+                  <div 
+                    className="payroll-status" 
+                    style={{ backgroundColor: getStatusColor(payroll.status) }}
+                  >
+                    {payroll.status}
+                  </div>
+                </div>
+                <div className="payroll-details">
+                  <div className="payroll-period">
+                    <strong>Period:</strong> {payroll.month}/{payroll.year}
+                  </div>
+                  <div className="payroll-dates">
+                    <div><strong>Start:</strong> {new Date(payroll.startDate).toLocaleDateString()}</div>
+                    <div><strong>End:</strong> {new Date(payroll.endDate).toLocaleDateString()}</div>
+                    <div><strong>Payment:</strong> {new Date(payroll.paymentDate).toLocaleDateString()}</div>
+                  </div>
+                  {payroll.totalAmount > 0 && (
+                    <div className="payroll-amount">
+                      <strong>Total Amount:</strong> Rs. {payroll.totalAmount.toLocaleString()}
+                    </div>
+                  )}
+                  {payroll.totalEmployees > 0 && (
+                    <div className="payroll-employees">
+                      <strong>Employees:</strong> {payroll.totalEmployees}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
   };
 
   const renderStats = () => {
@@ -97,10 +238,11 @@ export default function FinanceDashboard() {
       <div className="dashboard-stats">
         <h2>Finance Overview - All Users</h2>
         <div className="stats-grid">
-          <div className="stat-card">
+          <div className="stat-card clickable" onClick={() => handleStatCardClick('total')}>
             <div className="stat-icon">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 2v20M17 5H9l-3 3-3h10l-3-3v10"/>
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
               </svg>
             </div>
             <div className="stat-content">
@@ -109,7 +251,7 @@ export default function FinanceDashboard() {
             </div>
           </div>
           
-          <div className="stat-card">
+          <div className="stat-card clickable" onClick={() => handleStatCardClick('completed')}>
             <div className="stat-icon">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M9 11l3 3L22 9l-3-3"/>
@@ -123,7 +265,7 @@ export default function FinanceDashboard() {
             </div>
           </div>
           
-          <div className="stat-card">
+          <div className="stat-card clickable" onClick={() => handleStatCardClick('draft')}>
             <div className="stat-icon">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -136,7 +278,7 @@ export default function FinanceDashboard() {
             </div>
           </div>
           
-          <div className="stat-card">
+          <div className="stat-card clickable" onClick={() => handleStatCardClick('processing')}>
             <div className="stat-icon">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
@@ -148,7 +290,7 @@ export default function FinanceDashboard() {
             </div>
           </div>
           
-          <div className="stat-card">
+          <div className="stat-card clickable" onClick={() => handleStatCardClick('total')}>
             <div className="stat-icon">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="12" y1="1" x2="12" y2="23"/>
@@ -183,9 +325,53 @@ export default function FinanceDashboard() {
           Process Payroll
         </button>
       </div>
+    </div>
+  );
+
+  const renderForm = () => {
+    switch(activeForm) {
+      case "create":
+        return <CreatePayroll />;
+      case "process":
+        return <ProcessPayroll />;
+      default:
+        return null;
+    }
+  };
+
+  const renderMainContent = () => {
+    if (showFilteredView) {
+      return renderFilteredView();
+    }
+    
+    if (activeForm) {
+      return renderForm();
+    }
+    
+    return renderStats();
+  };
+
+  return (
+    <div className="finance-dashboard">
+      <h1>Finance Dashboard</h1>
+      
+      <div className="nav-buttons">
+        <button 
+          className={`nav-btn ${activeForm === "create" ? "active" : ""}`}
+          onClick={() => setActiveForm(activeForm === "create" ? "" : "create")}
+        >
+          Create Payroll
+        </button>
+        <button 
+          className={`nav-btn ${activeForm === "process" ? "active" : ""}`}
+          onClick={() => setActiveForm(activeForm === "process" ? "" : "process")}
+        >
+          Process Payroll
+        </button>
+      </div>
 
       <div className="form-container">
-        {activeForm ? renderForm() : renderStats()}
+        {renderMainContent()}
       </div>
     </div>
   );

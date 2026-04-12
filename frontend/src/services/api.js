@@ -47,4 +47,15 @@ export const getTaxComputationsByEmployeeAndFinancialYear = (employeeId, financi
 export const getLatestTaxComputationByEmployee = (employeeId) => API.get(`/tax-computations/employee/${employeeId}/latest`);
 export const getTaxSummaryByFinancialYear = (financialYear) => API.get(`/tax-computations/summary/financial-year/${financialYear}`);
 
+export const getSalaryBreakups = () => API.get("/salary-breakup");
+export const getSalaryBreakupById = (id) => API.get(`/salary-breakup/${id}`);
+export const getSalaryBreakupByEmployeePayroll = (employeePayrollId) => API.get(`/salary-breakup/employee-payroll/${employeePayrollId}`);
+export const getSalaryBreakupByEmployee = (employeeId) => API.get(`/salary-breakup/employee/${employeeId}`);
+export const getSalaryBreakupByPayrollCycle = (payrollCycleId) => API.get(`/salary-breakup/payroll-cycle/${payrollCycleId}`);
+export const createSalaryBreakup = (data) => API.post("/salary-breakup", data);
+export const createSalaryBreakups = (data) => API.post("/salary-breakup/batch", data);
+export const updateSalaryBreakup = (id, data) => API.put(`/salary-breakup/${id}`, data);
+export const deleteSalaryBreakup = (id) => API.delete(`/salary-breakup/${id}`);
+export const deleteSalaryBreakupByEmployeePayroll = (employeePayrollId) => API.delete(`/salary-breakup/employee-payroll/${employeePayrollId}`);
+
 export default API;

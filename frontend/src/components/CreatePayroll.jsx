@@ -127,19 +127,23 @@ export default function CreatePayroll() {
               id="endDate"
               value={data.endDate}
               onChange={(e) => setData({ ...data, endDate: e.target.value })}
+              min={data.startDate}
               required
             />
           </div>
         </div>
 
+
         <div className="form-row">
           <div className="form-group">
-            <label htmlFor="paymentDate">Payment Date</label>
+            <label htmlFor="paymentDate">Payment Date*</label>
             <input
               type="date"
               id="paymentDate"
               value={data.paymentDate}
               onChange={(e) => setData({ ...data, paymentDate: e.target.value })}
+              min={new Date().toISOString().split('T')[0]}
+              required
             />
           </div>
           

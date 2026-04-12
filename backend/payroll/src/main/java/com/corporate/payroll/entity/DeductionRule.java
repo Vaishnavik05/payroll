@@ -13,11 +13,9 @@ public class DeductionRule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
-    private String componentType;
+    private String deductionType;
     private Double percentage;
+    private Double fixedAmount;
     private Double maxAmount;
-    private Boolean isActive;
-    private String description;
-    private String calculationFormula;
+    private String applicableFrom;
 }

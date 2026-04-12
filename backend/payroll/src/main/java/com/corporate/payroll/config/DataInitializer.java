@@ -27,48 +27,39 @@ public class DataInitializer implements CommandLineRunner {
     }
     
     private void initializeDeductionRules() {
-        // Clear existing rules first
         deductionRuleRepository.deleteAll();
         
         if (deductionRuleRepository.count() == 0) {
-            
-            // Create standard deduction rules
             DeductionRule pf = DeductionRule.builder()
-                .name("Provident Fund")
-                .componentType("DEDUCTION")
+                .deductionType("Provident Fund")
                 .percentage(12.0)
-                .description("Employee Provident Fund contribution")
-                .calculationFormula("12% of Basic + DA")
-                .isActive(true)
+                .fixedAmount(null)
+                .maxAmount(null)
+                .applicableFrom("2024-01-01")
                 .build();
                 
             DeductionRule esi = DeductionRule.builder()
-                .name("Employee State Insurance")
-                .componentType("DEDUCTION")
+                .deductionType("Employee State Insurance")
                 .percentage(0.75)
+                .fixedAmount(null)
                 .maxAmount(157.50)
-                .description("Employee State Insurance contribution")
-                .calculationFormula("0.75% of Gross (max ₹157.50)")
-                .isActive(true)
+                .applicableFrom("2024-01-01")
                 .build();
                 
             DeductionRule pt = DeductionRule.builder()
-                .name("Professional Tax")
-                .componentType("DEDUCTION")
+                .deductionType("Professional Tax")
                 .percentage(null)
+                .fixedAmount(200.0)
                 .maxAmount(200.0)
-                .description("Professional Tax deduction")
-                .calculationFormula("Fixed ₹200 per month")
-                .isActive(true)
+                .applicableFrom("2024-01-01")
                 .build();
                 
             DeductionRule tds = DeductionRule.builder()
-                .name("Tax Deduction at Source")
-                .componentType("DEDUCTION")
+                .deductionType("Tax Deduction at Source")
                 .percentage(null)
-                .description("Income Tax deduction")
-                .calculationFormula("As per tax slabs")
-                .isActive(true)
+                .fixedAmount(null)
+                .maxAmount(null)
+                .applicableFrom("2024-01-01")
                 .build();
 
             deductionRuleRepository.save(pf);
@@ -77,16 +68,15 @@ public class DataInitializer implements CommandLineRunner {
             deductionRuleRepository.save(tds);
             
             System.out.println("Default deduction rules initialized successfully!");
+            System.out.println("Created rules: PF, ESI, PT, TDS with simplified structure");
         }
     }
     
     private void initializeMinimumWages() {
-        // Clear existing rules first
         minimumWageRepository.deleteAll();
         
         if (minimumWageRepository.count() == 0) {
-            
-            // Initialize minimum wages for all Indian states
+        
             for (State state : State.values()) {
                 MinimumWage minimumWage = MinimumWage.builder()
                     .state(state)
@@ -103,7 +93,6 @@ public class DataInitializer implements CommandLineRunner {
     
     private void initializeSampleUsers() {
         if (userRepository.count() == 0) {
-            // Find existing users by employee code or create sample ones if they don't exist
             User employee1 = userRepository.findByEmployeeCode("EMP001").orElseGet(() -> {
                 User user = new User();
                 user.setName("John Doe");
@@ -142,9 +131,6 @@ public class DataInitializer implements CommandLineRunner {
                 user.setActive(true);
                 return userRepository.save(user);
             });
-            
-            // Skip tax computation creation for now due to database schema issues
-            // Tax computations will be created when payroll cycles are processed
             System.out.println("Sample users initialized successfully!");
         }
     }

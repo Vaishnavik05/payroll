@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { processPayroll, completePayroll, getPayrolls } from "../services/api";
+import API from "../services/api";
 import "./ProcessPayroll.css";
 
 export default function ProcessPayroll() {
@@ -14,16 +15,46 @@ export default function ProcessPayroll() {
   };
 
   useEffect(() => {
+    testConnection();
     fetchPayrolls();
   }, []);
 
+  const testConnection = async () => {
+    try {
+      console.log("Testing API connection...");
+      const response = await API.get("/payroll-cycles");
+      console.log("Connection test successful:", response.status);
+    } catch (err) {
+      console.error("Connection test failed:", err.message);
+      if (err.code === 'ECONNREFUSED') {
+        setError("Backend server is not running. Please start the backend application on port 8080.");
+      } else if (err.response?.status === 404) {
+        setError("API endpoint not found. Check backend routing.");
+      } else {
+        setError("API connection error: " + err.message);
+      }
+    }
+  };
+
   const fetchPayrolls = async () => {
     try {
+      console.log("Fetching payrolls from API...");
       const response = await getPayrolls();
-      console.log("Fetched payrolls:", response.data); // Debug log
-      setPayrolls(response.data || []);
+      console.log("API response:", response);
+      console.log("Response data:", response.data);
+      console.log("Response status:", response.status);
+      
+      if (response.data && Array.isArray(response.data)) {
+        console.log("Payrolls found:", response.data.length);
+        setPayrolls(response.data);
+      } else {
+        console.log("No payrolls found or invalid response format");
+        setPayrolls([]);
+      }
     } catch (err) {
       console.error("Error fetching payrolls:", err);
+      console.error("Error response:", err.response);
+      setError("Failed to fetch payroll cycles: " + (err.response?.data?.message || err.message));
       setPayrolls([]);
     }
   };
@@ -106,6 +137,14 @@ export default function ProcessPayroll() {
         {payrolls.length === 0 && (
           <div className="info-message">
             No payroll cycles found. Please create a payroll cycle first.
+            <button 
+              type="button" 
+              className="refresh-btn" 
+              onClick={fetchPayrolls}
+              style={{marginLeft: '10px', padding: '5px 10px'}}
+            >
+              Refresh
+            </button>
           </div>
         )}
 

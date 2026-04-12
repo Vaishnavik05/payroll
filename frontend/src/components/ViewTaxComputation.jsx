@@ -2,82 +2,132 @@ import React, { useState, useEffect } from 'react';
 import { getTaxComputationsByEmployee, getLatestTaxComputationByEmployee, getTaxSummaryByFinancialYear, getTaxComputationsByEmployeeAndFinancialYear } from '../services/api';
 
 export default function ViewTaxComputation() {
-  const [employeeId, setEmployeeId] = useState('');
+  const [employeeCode, setEmployeeCode] = useState('');
   const [financialYear, setFinancialYear] = useState('');
   const [taxData, setTaxData] = useState([]);
   const [summaryData, setSummaryData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [viewMode, setViewMode] = useState('employee'); // employee, summary
+  const [validationErrors, setValidationErrors] = useState({});
 
   const handleBack = () => {
     window.location.href = '/employee';
   };
 
+  const validateInputs = () => {
+    const errors = {};
+    
+    if (viewMode === 'employee') {
+      if (!employeeCode.trim()) {
+        errors.employeeCode = 'Employee Code is required';
+      } else if (!/^EMP\d+$/.test(employeeCode.trim().toUpperCase())) {
+        errors.employeeCode = 'Employee Code must be in format EMP001, EMP100, etc.';
+      }
+      
+      if (financialYear && !/^\d{4}-\d{4}$/.test(financialYear.trim())) {
+        errors.financialYear = 'Financial year must be in format YYYY-YYYY';
+      }
+    } else {
+      if (!financialYear.trim()) {
+        errors.financialYear = 'Financial year is required';
+      } else if (!/^\d{4}-\d{4}$/.test(financialYear.trim())) {
+        errors.financialYear = 'Financial year must be in format YYYY-YYYY';
+      }
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const fetchTaxData = async () => {
+    if (!validateInputs()) {
+      return;
+    }
+
     setLoading(true);
     setError('');
+    setSuccess('');
 
     try {
       let response;
       if (viewMode === 'employee') {
-        if (!employeeId.trim()) {
-          setError('Please enter an employee ID');
-          setLoading(false);
-          return;
-        }
-        const empId = parseInt(employeeId);
-        if (financialYear) {
-          response = await getTaxComputationsByEmployeeAndFinancialYear(empId, financialYear);
+        const empCode = employeeCode.trim().toUpperCase();
+        if (financialYear.trim()) {
+          response = await getTaxComputationsByEmployeeAndFinancialYear(empCode, financialYear.trim());
           setTaxData(response.data || []);
           setSummaryData(null);
-          return;
+          setSuccess(`Found ${response.data?.length || 0} tax records for employee ${empCode}`);
         } else {
-          response = await getTaxComputationsByEmployee(empId);
+          response = await getTaxComputationsByEmployee(empCode);
+          const taxData = Array.isArray(response.data) ? response.data : [];
+          setTaxData(taxData);
+          setSummaryData(null);
+          setSuccess(`Found ${taxData.length} tax records for employee ${empCode}`);
         }
       } else {
-        if (!financialYear.trim()) {
-          setError('Please enter a financial year');
-          setLoading(false);
-          return;
-        }
-        response = await getTaxSummaryByFinancialYear(financialYear);
-      }
-      
-      if (viewMode === 'summary') {
-        console.log('Summary API Response:', response);
-        console.log('Summary Data:', response.data || response);
+        response = await getTaxSummaryByFinancialYear(financialYear.trim());
         setSummaryData(response.data || response);
         setTaxData([]);
-      } else {
-        const taxData = Array.isArray(response.data) ? response.data : (response ? [response] : []);
-        setTaxData(taxData);
-        setSummaryData(null);
+        setSuccess(`Tax summary loaded for ${financialYear}`);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to fetch tax computation data');
+      console.error('Tax API Error:', err);
+      let errorMessage = 'Failed to fetch tax computation data';
+      
+      if (err.response?.status === 404) {
+        errorMessage = 'No tax data found for the specified criteria';
+      } else if (err.response?.status === 400) {
+        errorMessage = 'Invalid request parameters';
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
+      setSuccess('');
     } finally {
       setLoading(false);
     }
   };
 
   const fetchLatestTax = async () => {
-    if (!employeeId.trim()) {
-      setError('Please enter an employee ID');
+    if (!employeeCode.trim()) {
+      setError('Please enter an employee code');
+      return;
+    }
+    
+    if (!/^EMP\d+$/.test(employeeCode.trim().toUpperCase())) {
+      setError('Employee Code must be in format EMP001, EMP100, etc.');
       return;
     }
 
     setLoading(true);
     setError('');
+    setSuccess('');
 
     try {
-      const empId = parseInt(employeeId);
-      const response = await getLatestTaxComputationByEmployee(empId);
+      const empCode = employeeCode.trim().toUpperCase();
+      const response = await getLatestTaxComputationByEmployee(empCode);
       const taxData = response.data ? [response.data] : [];
       setTaxData(taxData);
       setSummaryData(null);
+      setSuccess(`Latest tax computation loaded for employee ${empCode}`);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to fetch latest tax computation');
+      console.error('Latest Tax API Error:', err);
+      let errorMessage = 'Failed to fetch latest tax computation';
+      
+      if (err.response?.status === 404) {
+        errorMessage = 'No tax computation found for this employee';
+      } else if (err.response?.status === 400) {
+        errorMessage = 'Invalid employee code';
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -110,7 +160,32 @@ export default function ViewTaxComputation() {
         <h3>Tax Computation Details</h3>
       </div>
 
-      {error && <div className="error-message">{error}</div>}
+      {error && (
+        <div className="error-message">
+          <div className="error-header">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="15" y1="9" x2="9" y2="15"/>
+              <line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+            <span>Error</span>
+          </div>
+          <div className="error-content">{error}</div>
+        </div>
+      )}
+      
+      {success && (
+        <div className="success-message">
+          <div className="success-header">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <span>Success</span>
+          </div>
+          <div className="success-content">{success}</div>
+        </div>
+      )}
 
       <div className="controls-section">
         <div className="view-mode-toggle">
@@ -132,22 +207,40 @@ export default function ViewTaxComputation() {
           {viewMode === 'employee' && (
             <>
               <div className="input-group">
-                <label>Employee ID</label>
+                <label>Employee Code *</label>
                 <input
                   type="text"
-                  value={employeeId}
-                  onChange={(e) => setEmployeeId(e.target.value)}
-                  placeholder="Enter Employee ID"
+                  value={employeeCode}
+                  onChange={(e) => {
+                    setEmployeeCode(e.target.value);
+                    if (validationErrors.employeeCode) {
+                      setValidationErrors({...validationErrors, employeeCode: ''});
+                    }
+                  }}
+                  placeholder="Enter Employee Code (e.g., EMP001, EMP100)"
+                  className={validationErrors.employeeCode ? 'error' : ''}
                 />
+                {validationErrors.employeeCode && (
+                  <span className="error-text">{validationErrors.employeeCode}</span>
+                )}
               </div>
               <div className="input-group">
                 <label>Financial Year (Optional)</label>
                 <input
                   type="text"
                   value={financialYear}
-                  onChange={(e) => setFinancialYear(e.target.value)}
+                  onChange={(e) => {
+                    setFinancialYear(e.target.value);
+                    if (validationErrors.financialYear) {
+                      setValidationErrors({...validationErrors, financialYear: ''});
+                    }
+                  }}
                   placeholder="e.g., 2024-2025"
+                  className={validationErrors.financialYear ? 'error' : ''}
                 />
+                {validationErrors.financialYear && (
+                  <span className="error-text">{validationErrors.financialYear}</span>
+                )}
               </div>
               <div className="button-group">
                 <button 
@@ -175,10 +268,19 @@ export default function ViewTaxComputation() {
                 <input
                   type="text"
                   value={financialYear}
-                  onChange={(e) => setFinancialYear(e.target.value)}
+                  onChange={(e) => {
+                    setFinancialYear(e.target.value);
+                    if (validationErrors.financialYear) {
+                      setValidationErrors({...validationErrors, financialYear: ''});
+                    }
+                  }}
                   placeholder="e.g., 2024-2025"
                   required
+                  className={validationErrors.financialYear ? 'error' : ''}
                 />
+                {validationErrors.financialYear && (
+                  <span className="error-text">{validationErrors.financialYear}</span>
+                )}
               </div>
               <div className="button-group">
                 <button 
@@ -288,8 +390,25 @@ export default function ViewTaxComputation() {
 
         {taxData.length === 0 && !summaryData && !loading && (
           <div className="no-data">
+            <div className="no-data-icon">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M9 11l3 3L22 9l-3-3"/>
+                <path d="M21 12v-1a2 2 0 0 0-2-2h-3"/>
+                <path d="M8 21H4"/>
+                <circle cx="12" cy="12" r="10"/>
+              </svg>
+            </div>
             <h4>No Tax Data Found</h4>
             <p>No tax computation records found for the specified criteria.</p>
+            <div className="no-data-actions">
+              <button onClick={() => {
+                setEmployeeCode('');
+                setFinancialYear('');
+                setValidationErrors({});
+              }} className="clear-btn">
+                Clear Filters
+              </button>
+            </div>
           </div>
         )}
       </div>

@@ -3,7 +3,7 @@ import CreateSalary from "./CreateSalary";
 import UpdateSalary from "./UpdateSalary";
 import ViewSalaryStructures from "./ViewSalaryStructures";
 import DeductionRuleForm from "./DeductionRuleForm";
-import { getUsers } from "../services/api";
+import { getUsers, getSalaryByEmployee } from "../services/api";
 import "./HRDashboard.css";
 
 export default function HRDashboard() {
@@ -27,10 +27,40 @@ export default function HRDashboard() {
       const totalEmployees = employees.length;
       const totalDepartments = [...new Set(employees.map(emp => emp.department).filter(Boolean))].length;
       
+      // Calculate actual average salary from salary structures
+      let totalSalary = 0;
+      let employeesWithSalary = 0;
+      
+      for (const employee of employees) {
+        try {
+          const salaryResponse = await getSalaryByEmployee(employee.id);
+          const salaryStructures = salaryResponse.data;
+          
+          if (salaryStructures && salaryStructures.length > 0) {
+            // Get the latest salary structure (first one in array)
+            const latestSalary = salaryStructures[0];
+            const totalMonthlySalary = 
+              (latestSalary.basic || 0) + 
+              (latestSalary.hra || 0) + 
+              (latestSalary.da || 0) + 
+              (latestSalary.specialAllowance || 0) + 
+              (latestSalary.bonus || 0) + 
+              (latestSalary.lta || 0);
+            
+            totalSalary += totalMonthlySalary;
+            employeesWithSalary++;
+          }
+        } catch (salaryErr) {
+          console.log(`No salary structure found for employee ${employee.id}`);
+        }
+      }
+      
+      const averageSalary = employeesWithSalary > 0 ? Math.round(totalSalary / employeesWithSalary) : 0;
+      
       setStats({
         totalEmployees: totalEmployees,
         totalDepartments: totalDepartments,
-        averageSalary: 45000,
+        averageSalary: averageSalary,
         pendingSalaries: Math.floor(totalEmployees * 0.1)
       });
     } catch (err) {

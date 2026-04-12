@@ -7,4 +7,8 @@ import java.util.List;
 
 public interface SalaryBreakupRepository extends JpaRepository<SalaryBreakup, Long> {
     List<SalaryBreakup> findByEmployeePayroll(EmployeePayroll employeePayroll);
+    List<SalaryBreakup> findByEmployeePayrollId(Long employeePayrollId);
+    List<SalaryBreakup> findByEmployeePayrollEmployeeId(Long employeeId);
+    List<SalaryBreakup> findByEmployeePayrollPayrollCycleId(Long payrollCycleId);
+    void deleteByEmployeePayrollId(Long employeePayrollId);
 }

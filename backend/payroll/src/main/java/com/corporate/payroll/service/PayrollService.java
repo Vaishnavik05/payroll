@@ -100,14 +100,11 @@ public class PayrollService {
                 .employee(emp)
                 .financialYear(cycle.getYear() + "-" + (cycle.getYear() + 1))
                 .totalIncome(gross * 12)
-                .annualIncome(annual)
                 .taxableIncome(annual)
                 .taxPayable(tax)
                 .cess(0.0) // Can be calculated based on specific rules
                 .totalTax(tax)
                 .tdsDeducted(tds)
-                .tdsPerMonth(tds)
-                .otherDeductions(pf + esi + pt)
                 .deductions(pf + esi + pt)
                 .status("COMPUTED")
                 .build();
@@ -133,7 +130,7 @@ public class PayrollService {
         }
         
         DeductionRule rule = deductionRepo.findAll().stream()
-                .filter(r -> r.getName() != null && r.getName().equalsIgnoreCase(ruleName))
+                .filter(r -> r.getDeductionType() != null && r.getDeductionType().equalsIgnoreCase(ruleName))
                 .findFirst()
                 .orElse(null);
         
@@ -143,7 +140,7 @@ public class PayrollService {
             deduction.setComponentType(ComponentType.DEDUCTION);
             deduction.setComponentName(ruleName);
             deduction.setAmount(amount);
-            deduction.setCalculationFormula(rule.getCalculationFormula());
+            deduction.setCalculationFormula(ruleName + " deduction");
             salaryBreakupRepo.save(deduction);
         } else {
             System.out.println("WARNING: No deduction rule found for " + ruleName);
@@ -174,7 +171,7 @@ public class PayrollService {
 
     private double calculateDeduction(String ruleName, double baseAmount, List<DeductionRule> deductionRules) {
         DeductionRule rule = deductionRules.stream()
-                .filter(r -> r.getName().equalsIgnoreCase(ruleName) && r.getIsActive())
+                .filter(r -> r.getDeductionType().equalsIgnoreCase(ruleName))
                 .findFirst()
                 .orElse(null);
         
@@ -193,8 +190,6 @@ public class PayrollService {
         } else if (rule.getMaxAmount() != null) {
             deduction = rule.getMaxAmount();
         }
-        
-        // Special handling for ESI (only applicable if gross <= 21000)
         if ("Employee State Insurance".equalsIgnoreCase(ruleName) && baseAmount > 21000) {
             return 0.0;
         }

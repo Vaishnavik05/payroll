@@ -18,18 +18,12 @@ public class PayrollCycleRequest {
     private Integer year;
     
     @NotNull(message = "Start date is required")
-    @PastOrPresent(message = "Start date must be in the past or present")
     private LocalDate startDate;
     
     @NotNull(message = "End date is required")
-    @PastOrPresent(message = "End date must be in the past or present")
     private LocalDate endDate;
     
     @NotNull(message = "Payment date is required")
     @Future(message = "Payment date must be in the future")
     private LocalDate paymentDate;
-    
-    @NotBlank(message = "Description is required")
-    @Size(max = 255, message = "Description must not exceed 255 characters")
-    private String description;
 }

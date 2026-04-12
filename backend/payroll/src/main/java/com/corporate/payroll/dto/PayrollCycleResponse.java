@@ -13,7 +13,6 @@ public class PayrollCycleResponse {
     private LocalDate endDate;
     private LocalDate paymentDate;
     private PayrollStatus status;
-    private String description;
     private int totalEmployees;
     private double totalGrossSalary;
     private double totalNetSalary;

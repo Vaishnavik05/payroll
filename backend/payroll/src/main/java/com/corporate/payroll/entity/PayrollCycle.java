@@ -15,7 +15,6 @@ public class PayrollCycle {
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDate paymentDate;
-    private String description;
     @Enumerated(EnumType.STRING)
     private PayrollStatus status = PayrollStatus.DRAFT;
     private LocalDateTime createdAt = LocalDateTime.now();

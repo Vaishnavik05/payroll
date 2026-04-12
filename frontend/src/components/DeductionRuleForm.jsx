@@ -4,10 +4,11 @@ import { createDeductionRule, getDeductionRules, updateDeductionRule, deleteDedu
 export default function DeductionRuleForm() {
   const [rules, setRules] = useState([]);
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    calculationFormula: '',
-    isActive: true
+    deductionType: '',
+    percentage: '',
+    fixedAmount: '',
+    maxAmount: '',
+    applicableFrom: ''
   });
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -47,10 +48,11 @@ export default function DeductionRuleForm() {
       }
       
       setFormData({
-        name: '',
-        description: '',
-        calculationFormula: '',
-        isActive: true
+        deductionType: '',
+        percentage: '',
+        fixedAmount: '',
+        maxAmount: '',
+        applicableFrom: ''
       });
       setEditingId(null);
       fetchRules();
@@ -63,10 +65,11 @@ export default function DeductionRuleForm() {
 
   const handleEdit = (rule) => {
     setFormData({
-      name: rule.name,
-      description: rule.description,
-      calculationFormula: rule.calculationFormula,
-      isActive: rule.isActive
+      deductionType: rule.deductionType || '',
+      percentage: rule.percentage || '',
+      fixedAmount: rule.fixedAmount || '',
+      maxAmount: rule.maxAmount || '',
+      applicableFrom: rule.applicableFrom || ''
     });
     setEditingId(rule.id);
   };
@@ -84,10 +87,11 @@ export default function DeductionRuleForm() {
 
   const handleCancel = () => {
     setFormData({
-      name: '',
-      description: '',
-      calculationFormula: '',
-      isActive: true
+      deductionType: '',
+      percentage: '',
+      fixedAmount: '',
+      maxAmount: '',
+      applicableFrom: ''
     });
     setEditingId(null);
   };
@@ -109,55 +113,19 @@ export default function DeductionRuleForm() {
       <div className="form-section">
         <h4>{editingId ? 'Edit Deduction Rule' : 'Add New Deduction Rule'}</h4>
         <form onSubmit={handleSubmit} className="deduction-form">
-          <div className="form-row">
-            <div className="form-group">
-              <label>Rule Name *</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                placeholder="e.g., Provident Fund, Professional Tax"
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Component Type</label>
-              <select
-                name="componentType"
-                value={formData.componentType || 'DEDUCTION'}
-                onChange={handleInputChange}
-                className="form-select"
-              >
-                <option value="DEDUCTION">Deduction</option>
-                <option value="EARNING">Earning</option>
-              </select>
-            </div>
-          </div>
-
           <div className="form-group">
-            <label>Description</label>
-            <textarea
-              name="description"
-              value={formData.description}
+            <label>Deduction Type *</label>
+            <input
+              type="text"
+              name="deductionType"
+              value={formData.deductionType}
               onChange={handleInputChange}
-              placeholder="Brief description of the deduction rule"
-              rows="3"
+              placeholder="e.g., Provident Fund, Professional Tax"
+              required
             />
           </div>
 
           <div className="form-row">
-            <div className="form-group">
-              <label>Calculation Formula *</label>
-              <input
-                type="text"
-                name="calculationFormula"
-                value={formData.calculationFormula}
-                onChange={handleInputChange}
-                placeholder="e.g., 12% of Basic + DA"
-                required
-              />
-            </div>
             <div className="form-group">
               <label>Percentage (%)</label>
               <input
@@ -171,11 +139,23 @@ export default function DeductionRuleForm() {
                 max="100"
               />
             </div>
+            <div className="form-group">
+              <label>Fixed Amount (')</label>
+              <input
+                type="number"
+                name="fixedAmount"
+                value={formData.fixedAmount || ''}
+                onChange={handleInputChange}
+                placeholder="e.g., 200"
+                step="0.01"
+                min="0"
+              />
+            </div>
           </div>
           
           <div className="form-row">
             <div className="form-group">
-              <label>Max Amount (₹)</label>
+              <label>Max Amount (')</label>
               <input
                 type="number"
                 name="maxAmount"
@@ -186,16 +166,14 @@ export default function DeductionRuleForm() {
                 min="0"
               />
             </div>
-            <div className="form-group checkbox-group">
-              <label>
-                <input
-                  type="checkbox"
-                  name="isActive"
-                  checked={formData.isActive}
-                  onChange={handleInputChange}
-                />
-                <span className="checkbox-text">Active</span>
-              </label>
+            <div className="form-group">
+              <label>Applicable From</label>
+              <input
+                type="date"
+                name="applicableFrom"
+                value={formData.applicableFrom || ''}
+                onChange={handleInputChange}
+              />
             </div>
           </div>
 
@@ -231,24 +209,23 @@ export default function DeductionRuleForm() {
             {rules.map((rule) => (
               <div key={rule.id} className="rule-card">
                 <div className="rule-header">
-                  <h5>{rule.name}</h5>
-                  <span className={`status-badge ${rule.isActive ? 'active' : 'inactive'}`}>
-                    {rule.isActive ? 'Active' : 'Inactive'}
-                  </span>
+                  <h5>{rule.deductionType}</h5>
                 </div>
                 <div className="rule-details">
                   <div className="detail-row">
-                    <span className="detail-label">Description:</span>
-                    <span className="detail-value">{rule.description || 'No description'}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Formula:</span>
-                    <span className="detail-value">{rule.calculationFormula}</span>
+                    <span className="detail-label">Deduction Type:</span>
+                    <span className="detail-value">{rule.deductionType}</span>
                   </div>
                   {rule.percentage && (
                     <div className="detail-row">
                       <span className="detail-label">Percentage:</span>
                       <span className="detail-value">{rule.percentage}%</span>
+                    </div>
+                  )}
+                  {rule.fixedAmount && (
+                    <div className="detail-row">
+                      <span className="detail-label">Fixed Amount:</span>
+                      <span className="detail-value">₹{rule.fixedAmount}</span>
                     </div>
                   )}
                   {rule.maxAmount && (
@@ -257,10 +234,12 @@ export default function DeductionRuleForm() {
                       <span className="detail-value">₹{rule.maxAmount}</span>
                     </div>
                   )}
-                  <div className="detail-row">
-                    <span className="detail-label">Component Type:</span>
-                    <span className="detail-value">{rule.componentType || 'DEDUCTION'}</span>
-                  </div>
+                  {rule.applicableFrom && (
+                    <div className="detail-row">
+                      <span className="detail-label">Applicable From:</span>
+                      <span className="detail-value">{new Date(rule.applicableFrom).toLocaleDateString()}</span>
+                    </div>
+                  )}
                 </div>
                 <div className="rule-actions">
                   <button 
