@@ -32,18 +32,13 @@ public class TaxController {
 
     @GetMapping("/financial-year")
     public Map<Long, Double> getTaxForFinancialYear() {
-        // Define financial year range (April 1st to March 31st)
         LocalDateTime now = LocalDateTime.now();
         int year = now.getMonthValue() >= 4 ? now.getYear() : now.getYear() - 1;
         LocalDateTime start = LocalDateTime.of(year, Month.APRIL, 1, 0, 0);
         LocalDateTime end = LocalDateTime.of(year + 1, Month.MARCH, 31, 23, 59, 59);
-
-        // Fetch all payrolls in this range
         List<EmployeePayroll> payrolls = employeePayrollRepository.findAll().stream()
             .filter(p -> p.getPaidAt() != null && !p.getPaidAt().isBefore(start) && !p.getPaidAt().isAfter(end))
             .collect(Collectors.toList());
-
-        // Group by employee and sum tax (gross - netSalary)
         return payrolls.stream()
             .collect(Collectors.groupingBy(
                 p -> p.getEmployee().getId(),

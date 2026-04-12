@@ -24,16 +24,4 @@ public class EmployeePayrollController {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "EmployeePayroll not found"));
         return salaryBreakupRepository.findByEmployeePayroll(payroll);
     }
-
-    @GetMapping("/api/tax/employee/{employeeId}")
-    public Double getEmployeeTax(@PathVariable Long employeeId) {
-        List<EmployeePayroll> payrolls = employeePayrollRepository.findByEmployee_Id(employeeId);
-        if (payrolls.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "EmployeePayroll not found for employeeId " + employeeId);
-        }
-        EmployeePayroll latestPayroll = payrolls.stream()
-            .max((a, b) -> a.getId().compareTo(b.getId()))
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No payroll found"));
-        return latestPayroll.getGross() - latestPayroll.getNetSalary();
-    }
 }

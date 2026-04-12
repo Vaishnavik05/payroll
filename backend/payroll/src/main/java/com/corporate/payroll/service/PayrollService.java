@@ -84,6 +84,6 @@ public class PayrollService {
         }
         double gross = s.getBasic() + s.getHra() + s.getDa() + s.getSpecialAllowance() + s.getBonus();
         double annual = gross * 12;
-        return calculateTax(annual); // Use your existing tax calculation logic
+        return calculateTax(annual); 
     }
 }

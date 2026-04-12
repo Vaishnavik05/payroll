@@ -11,7 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/payroll-cycle")
+@RequestMapping("/api/payroll-cycles")
 @RequiredArgsConstructor
 public class PayrollCycleController {
     private final PayrollCycleRepository payrollCycleRepository;
