@@ -1,0 +1,94 @@
+# Payroll Management System
+
+A full-stack Payroll Management System for organizations to manage employees, salary structures, payroll cycles, tax computation, and payslips.
+
+## Features
+
+- **User Management:** Admin, HR Manager, Finance, and Employee roles
+- **Salary Structure:** Define and manage salary components for employees
+- **Payroll Cycle:** Create, process, and complete payroll cycles
+- **Employee Payroll:** Calculate gross, deductions, and net salary
+- **Tax Computation:** View and manage tax details for employees
+- **Payslip Generation:** Download payslips for each payroll cycle
+- **Dashboards:** Role-based dashboards for Admin, HR, Finance, and Employees
+
+## Tech Stack
+
+- **Backend:** Spring Boot (Java 17), Spring Data JPA, MySQL
+- **Frontend:** React, React Router
+- **Build Tools:** Maven (backend), npm (frontend)
+- **Other:** Lombok, REST APIs
+
+## Project 
+```
+payroll/
+├── backend/
+│   └── payroll/
+│       ├── src/
+│       │   ├── main/
+│       │   │   ├── java/com/corporate/payroll/...
+│       │   │   └── resources/application.properties
+│       └── pom.xml
+└── frontend/
+    └── src/
+        ├── components/
+        ├── services/
+        ├── App.jsx
+        └── index.js
+
+## Getting Started
+
+### Prerequisites
+
+- Java 17+
+- Node.js 16+
+- MySQL 8+
+- Maven
+
+### Backend Setup
+
+1. **Configure Database**
+
+   Update application.properties with your MySQL credentials.
+
+2. **Create Database**
+
+   CREATE DATABASE payroll;
+
+3. **Build and Run Backend**
+
+   cd backend/payroll
+   mvn clean install
+   mvn spring-boot:run
+
+   The backend will start at `http://localhost:8080`.
+
+### Frontend Setup
+
+1. **Install Dependencies**
+
+   cd frontend
+   npm install
+
+2. **Run Frontend**
+   npm start
+   The frontend will start at `http://localhost:3000`.
+
+## API Endpoints
+
+- **Users:** `/api/users`
+- **Salary Structures:** `/api/salary-structures`
+- **Payroll Cycles:** `/api/payroll-cycles`
+- **Employee Payroll:** `/api/employee-payrolls`
+- **Payslips:** `/api/payslips`
+- **Tax:** `/api/tax`
+- **Deduction Rules:** `/api/deduction-rules`
+
+## Environment Variables
+
+- Backend: Configure in `application.properties`
+- Frontend: API base URL is set in `src/services/api.js`
+
+## License
+
+This project is for educational and internal use.
