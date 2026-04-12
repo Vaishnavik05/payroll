@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getTaxComputationsByEmployee, getLatestTaxComputationByEmployee, getTaxSummaryByFinancialYear, getTaxComputationsByEmployeeAndFinancialYear } from '../services/api';
 
-export default function ViewTaxComputation() {
-  const [employeeCode, setEmployeeCode] = useState('');
+export default function ViewTaxComputation({ employeeCode: propEmployeeCode = '' }) {
+  const [employeeCode, setEmployeeCode] = useState(propEmployeeCode);
   const [financialYear, setFinancialYear] = useState('');
   const [taxData, setTaxData] = useState([]);
   const [summaryData, setSummaryData] = useState(null);
@@ -11,6 +11,41 @@ export default function ViewTaxComputation() {
   const [success, setSuccess] = useState('');
   const [viewMode, setViewMode] = useState('employee'); // employee, summary
   const [validationErrors, setValidationErrors] = useState({});
+
+  useEffect(() => {
+    if (propEmployeeCode) {
+      setEmployeeCode(propEmployeeCode);
+      // Auto-load latest tax computation for the provided employee
+      const autoLoadTaxData = async () => {
+        setLoading(true);
+        setError('');
+        setSuccess('');
+        
+        try {
+          const empCode = propEmployeeCode.trim().toUpperCase();
+          const response = await getLatestTaxComputationByEmployee(empCode);
+          const taxData = response.data ? [response.data] : [];
+          setTaxData(taxData);
+          setSummaryData(null);
+          if (taxData.length > 0) {
+            setSuccess(`Latest tax computation loaded for employee ${empCode}`);
+          } else {
+            setSuccess(`No tax computation found for employee ${empCode}`);
+          }
+        } catch (err) {
+          console.error('Auto-load Tax API Error:', err);
+          // Clear data on auto-load error and don't show error message
+          setTaxData([]);
+          setSummaryData(null);
+          setSuccess(`No tax computation found for employee ${propEmployeeCode.trim().toUpperCase()}`);
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      autoLoadTaxData();
+    }
+  }, [propEmployeeCode]);
 
   const handleBack = () => {
     window.location.href = '/employee';
@@ -49,6 +84,9 @@ export default function ViewTaxComputation() {
     setLoading(true);
     setError('');
     setSuccess('');
+    // Clear previous data
+    setTaxData([]);
+    setSummaryData(null);
 
     try {
       let response;
@@ -74,10 +112,18 @@ export default function ViewTaxComputation() {
       }
     } catch (err) {
       console.error('Tax API Error:', err);
+      // Clear data on error
+      setTaxData([]);
+      setSummaryData(null);
+      
       let errorMessage = 'Failed to fetch tax computation data';
       
       if (err.response?.status === 404) {
-        errorMessage = 'No tax data found for the specified criteria';
+        if (viewMode === 'employee') {
+          errorMessage = `No tax data found for employee code "${employeeCode.trim().toUpperCase()}"`;
+        } else {
+          errorMessage = `No tax data found for financial year "${financialYear.trim()}"`;
+        }
       } else if (err.response?.status === 400) {
         errorMessage = 'Invalid request parameters';
       } else if (err.response?.data?.message) {
@@ -107,6 +153,9 @@ export default function ViewTaxComputation() {
     setLoading(true);
     setError('');
     setSuccess('');
+    // Clear previous data
+    setTaxData([]);
+    setSummaryData(null);
 
     try {
       const empCode = employeeCode.trim().toUpperCase();
@@ -117,10 +166,14 @@ export default function ViewTaxComputation() {
       setSuccess(`Latest tax computation loaded for employee ${empCode}`);
     } catch (err) {
       console.error('Latest Tax API Error:', err);
+      // Clear data on error
+      setTaxData([]);
+      setSummaryData(null);
+      
       let errorMessage = 'Failed to fetch latest tax computation';
       
       if (err.response?.status === 404) {
-        errorMessage = 'No tax computation found for this employee';
+        errorMessage = `No tax computation found for employee code "${employeeCode.trim().toUpperCase()}"`;
       } else if (err.response?.status === 400) {
         errorMessage = 'Invalid employee code';
       } else if (err.response?.data?.message) {
@@ -332,16 +385,12 @@ export default function ViewTaxComputation() {
               <div key={tax.id} className="tax-card">
                 <div className="tax-header">
                   <h5>Financial Year: {tax.financialYear}</h5>
-                  <span className={`status-badge ${tax.status?.toLowerCase() || 'computed'}`}>
-                    {tax.status || 'COMPUTED'}
+                  <span className={`status-badge ${tax.taxStatus?.toLowerCase() || 'computed'}`}>
+                    {tax.taxStatus || 'COMPUTED'}
                   </span>
                 </div>
                 
                 <div className="tax-details">
-                  <div className="detail-row">
-                    <span className="detail-label">Annual Income:</span>
-                    <span className="detail-value">{formatCurrency(tax.annualIncome)}</span>
-                  </div>
                   <div className="detail-row">
                     <span className="detail-label">Total Income:</span>
                     <span className="detail-value">{formatCurrency(tax.totalIncome)}</span>
@@ -360,19 +409,11 @@ export default function ViewTaxComputation() {
                   </div>
                   <div className="detail-row">
                     <span className="detail-label">TDS Deducted:</span>
-                    <span className="detail-value">{formatCurrency(tax.tdsDeducted)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">TDS Per Month:</span>
-                    <span className="detail-value">{formatCurrency(tax.tdsPerMonth)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Other Deductions:</span>
-                    <span className="detail-value">{formatCurrency(tax.otherDeductions)}</span>
+                    <span className="detail-value">{formatCurrency(tax.taxDeducted)}</span>
                   </div>
                   <div className="detail-row">
                     <span className="detail-label">Total Deductions:</span>
-                    <span className="detail-value">{formatCurrency(tax.deductions)}</span>
+                    <span className="detail-value">{formatCurrency(tax.totalDeductions)}</span>
                   </div>
                   <div className="detail-row">
                     <span className="detail-label">Cess:</span>

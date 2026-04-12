@@ -11,5 +11,4 @@ public class SalaryBreakupDTO {
     private String componentName;
     private BigDecimal amount;
     private String calculationFormula;
-    private String description;
 }

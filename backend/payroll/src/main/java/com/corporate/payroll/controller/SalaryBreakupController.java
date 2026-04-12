@@ -91,9 +91,6 @@ public class SalaryBreakupController {
                     breakup.setComponentType(request.getComponentType());
                     breakup.setAmount(request.getAmount().doubleValue());
                     breakup.setCalculationFormula(request.getCalculationFormula());
-                    breakup.setDescription(request.getDescription());
-                    breakup.setIsTaxable(request.getDescription() != null && !request.getDescription().isEmpty());
-                    breakup.setUpdatedAt(java.time.LocalDateTime.now());
                     return salaryBreakupRepository.save(breakup);
                 })
                 .map(updated -> ResponseEntity.ok(convertToDTO(updated)))
@@ -128,7 +125,6 @@ public class SalaryBreakupController {
         dto.setComponentType(breakup.getComponentType());
         dto.setAmount(java.math.BigDecimal.valueOf(breakup.getAmount()));
         dto.setCalculationFormula(breakup.getCalculationFormula());
-        dto.setDescription(breakup.getDescription());
         return dto;
     }
 
@@ -138,10 +134,6 @@ public class SalaryBreakupController {
         breakup.setComponentType(dto.getComponentType());
         breakup.setAmount(dto.getAmount().doubleValue());
         breakup.setCalculationFormula(dto.getCalculationFormula());
-        breakup.setDescription(dto.getDescription());
-        breakup.setIsTaxable(dto.getDescription() != null && !dto.getDescription().isEmpty());
-        breakup.setCreatedAt(java.time.LocalDateTime.now());
-        breakup.setUpdatedAt(java.time.LocalDateTime.now());
         return breakup;
     }
 }

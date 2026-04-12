@@ -1,20 +1,35 @@
 import { useState, useEffect } from "react";
 import ViewPayroll from "./ViewPayroll";
 import ViewTaxComputation from "./ViewTaxComputation";
-import { getEmployeePayroll } from "../services/api";
+import { getEmployeePayroll, getUserByEmployeeCode } from "../services/api";
 import "./EmployeeDashboard.css";
 
 export default function EmployeeDashboard() {
   const [activeView, setActiveView] = useState("");
   const [employeeId, setEmployeeId] = useState("");
+  const [employeeCode, setEmployeeCode] = useState("");
   const [payrollData, setPayrollData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // Get employee ID from localStorage or session
-    const storedEmployeeId = localStorage.getItem('employeeId') || "1"; // Default to 1 for demo
-    setEmployeeId(storedEmployeeId);
+    // Get employee code from localStorage or session
+    const storedEmployeeCode = localStorage.getItem('employeeCode') || "EMP001"; // Default to EMP001 for demo
+    setEmployeeCode(storedEmployeeCode);
+    
+    // Get employee ID from employee code
+    const fetchEmployeeId = async () => {
+      try {
+        const response = await getUserByEmployeeCode(storedEmployeeCode);
+        setEmployeeId(response.data.id);
+      } catch (err) {
+        console.error("Error fetching employee:", err);
+        // Fallback to default ID
+        setEmployeeId("1");
+      }
+    };
+    
+    fetchEmployeeId();
   }, []);
 
   const fetchEmployeePayroll = async () => {
@@ -39,9 +54,9 @@ export default function EmployeeDashboard() {
   const renderView = () => {
     switch(activeView) {
       case "payroll":
-        return <ViewPayroll />;
+        return <ViewPayroll employeeCode={employeeCode} employeeId={employeeId} />;
       case "tax-computation":
-        return <ViewTaxComputation />;
+        return <ViewTaxComputation employeeCode={employeeCode} />;
       default:
         return (
           <div className="dashboard-overview">

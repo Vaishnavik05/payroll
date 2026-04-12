@@ -18,40 +18,37 @@ public class TaxComputation {
     @JoinColumn(name = "employee_id", nullable = false)
     private User employee;
     
-    @Column(name = "financial_year")
+    @Column(name = "financialYear")
     private String financialYear;
     
-    @Column(name = "total_income")
+    @Column(name = "totalIncome")
     private Double totalIncome;
     
+    @Column(name = "totalDeductions")
+    private Double totalDeductions;
     
-    @Column(name = "taxable_income")
+    @Column(name = "taxableIncome")
     private Double taxableIncome;
     
-    @Column(name = "tax_payable")
+    @Column(name = "taxPayable")
     private Double taxPayable;
     
     @Column(name = "cess")
     private Double cess;
     
-    @Column(name = "total_tax")
+    @Column(name = "totalTax")
     private Double totalTax;
     
-    @Column(name = "tds_deducted")
-    private Double tdsDeducted;
+    @Column(name = "taxDeducted")
+    private Double taxDeducted;
     
-    
-    
-    @Column(name = "deductions")
-    private Double deductions;
-    
-    @Column(name = "status")
-    private String status;
+    @Column(name = "taxStatus")
+    private String taxStatus;
     
     @PrePersist
     protected void onCreate() {
-        if (status == null) {
-            status = "COMPUTED";
+        if (taxStatus == null) {
+            taxStatus = "COMPUTED";
         }
     }
 }

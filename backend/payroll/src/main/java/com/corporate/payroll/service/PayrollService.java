@@ -6,7 +6,6 @@ import com.corporate.payroll.entity.*;
 import com.corporate.payroll.enums.PayrollStatus;
 import com.corporate.payroll.enums.PayoutStatus;
 import com.corporate.payroll.enums.ComponentType;
-import com.corporate.payroll.enums.State;
 import com.corporate.payroll.repository.*;
 
 @Service
@@ -29,8 +28,6 @@ public class PayrollService {
         }
         cycle.setStatus(PayrollStatus.PROCESSING);
         cycleRepo.save(cycle);
-        
-        // Cache deduction rules to avoid repeated database calls
         List<DeductionRule> deductionRules = deductionRuleRepo.findAll();
         
         List<User> employees = userRepo.findAll();
@@ -47,17 +44,11 @@ public class PayrollService {
                            (s.getDa() != null ? s.getDa() : 0) + 
                            (s.getSpecialAllowance() != null ? s.getSpecialAllowance() : 0) + 
                            (s.getBonus() != null ? s.getBonus() : 0);
-            
-            // Validate salary components
             if (gross <= 0) {
                 System.out.println("WARNING: Invalid gross salary for employee " + emp.getEmployeeCode() + ": " + gross);
                 continue;
             }
-            
-            // Validate minimum wage compliance
             validateMinimumWage(emp, gross);
-            
-            // Calculate deductions using cached rules
             double pf = calculateDeduction("Provident Fund", s.getBasic() + s.getDa(), deductionRules);
             double esi = calculateDeduction("Employee State Insurance", gross, deductionRules);
             double pt = calculateDeduction("Professional Tax", gross, deductionRules);
@@ -100,13 +91,13 @@ public class PayrollService {
                 .employee(emp)
                 .financialYear(cycle.getYear() + "-" + (cycle.getYear() + 1))
                 .totalIncome(gross * 12)
+                .totalDeductions(pf + esi + pt)
                 .taxableIncome(annual)
                 .taxPayable(tax)
-                .cess(0.0) // Can be calculated based on specific rules
+                .cess(0.0) 
                 .totalTax(tax)
-                .tdsDeducted(tds)
-                .deductions(pf + esi + pt)
-                .status("COMPUTED")
+                .taxDeducted(tds)
+                .taxStatus("COMPUTED")
                 .build();
             taxComputationRepo.save(taxComputation);
         }

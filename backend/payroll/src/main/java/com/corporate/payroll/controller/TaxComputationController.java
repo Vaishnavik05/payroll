@@ -63,7 +63,7 @@ public class TaxComputationController {
         
         double totalEmployees = computations.size();
         double totalTax = computations.stream().mapToDouble(TaxComputation::getTotalTax).sum();
-        double totalTDS = computations.stream().mapToDouble(TaxComputation::getTdsDeducted).sum();
+        double totalTDS = computations.stream().mapToDouble(TaxComputation::getTaxDeducted).sum();
         double totalIncome = computations.stream().mapToDouble(TaxComputation::getTotalIncome).sum();
         
         var summary = java.util.Map.of(

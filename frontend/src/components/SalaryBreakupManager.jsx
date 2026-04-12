@@ -25,9 +25,7 @@ export default function SalaryBreakupManager() {
     componentName: "",
     componentType: "EARNING",
     amount: "",
-    calculationFormula: "",
-    description: "",
-    isTaxable: true
+    calculationFormula: ""
   });
 
   useEffect(() => {
@@ -108,9 +106,7 @@ export default function SalaryBreakupManager() {
       componentName: breakup.componentName,
       componentType: breakup.componentType,
       amount: breakup.amount.toString(),
-      calculationFormula: breakup.calculationFormula || "",
-      description: breakup.description || "",
-      isTaxable: breakup.isTaxable !== false
+      calculationFormula: breakup.calculationFormula || ""
     });
     setShowForm(true);
   };
@@ -137,9 +133,7 @@ export default function SalaryBreakupManager() {
       componentName: "",
       componentType: "EARNING",
       amount: "",
-      calculationFormula: "",
-      description: "",
-      isTaxable: true
+      calculationFormula: ""
     });
     setShowForm(false);
     setEditingBreakup(null);
@@ -252,16 +246,6 @@ export default function SalaryBreakupManager() {
                 />
               </div>
               
-              <div className="form-group">
-                <label>Taxable</label>
-                <select
-                  value={formData.isTaxable.toString()}
-                  onChange={(e) => setFormData({...formData, isTaxable: e.target.value === "true"})}
-                >
-                  <option value="true">Yes</option>
-                  <option value="false">No</option>
-                </select>
-              </div>
             </div>
 
             <div className="form-group">
@@ -274,15 +258,6 @@ export default function SalaryBreakupManager() {
               />
             </div>
 
-            <div className="form-group">
-              <label>Description</label>
-              <textarea
-                value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
-                placeholder="Optional description of this component"
-                rows="3"
-              />
-            </div>
 
             <div className="form-actions">
               <button type="submit" disabled={loading} className="submit-btn">
@@ -324,7 +299,6 @@ export default function SalaryBreakupManager() {
                 <div className="card-content">
                   <div className="amount-display">
                     <span className="amount">Rs. {breakup.amount?.toLocaleString()}</span>
-                    {breakup.isTaxable && <span className="taxable-badge">Taxable</span>}
                   </div>
                   
                   {breakup.calculationFormula && (
@@ -333,11 +307,6 @@ export default function SalaryBreakupManager() {
                     </div>
                   )}
                   
-                  {breakup.description && (
-                    <div className="description">
-                      {breakup.description}
-                    </div>
-                  )}
                 </div>
                 
                 <div className="card-actions">

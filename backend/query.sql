@@ -79,14 +79,14 @@ CREATE TABLE salary_breakup (
 CREATE TABLE tax_computation (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     employee_id BIGINT,
-    financial_year VARCHAR(10),
-    total_income DECIMAL(12,2),
-    deductions DECIMAL(12,2),
-    taxable_income DECIMAL(12,2),
-    tax_payable DECIMAL(12,2),
+    financialYear VARCHAR(10),
+    totalIncome DECIMAL(12,2),
+    totalDeductions DECIMAL(12,2),
+    taxableIncome DECIMAL(12,2),
+    taxPayable DECIMAL(12,2),
     cess DECIMAL(10,2),
-    total_tax DECIMAL(12,2),
-    tds_deducted DECIMAL(12,2),
-    status ENUM('PENDING','COMPUTED','FILED'),
+    totalTax DECIMAL(12,2),
+    taxDeducted DECIMAL(12,2),
+    taxStatus ENUM('PENDING','COMPUTED','FILED'),
     FOREIGN KEY (employee_id) REFERENCES user(id)
 );

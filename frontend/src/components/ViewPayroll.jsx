@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { getEmployeePayroll, getUsers, getUserByEmployeeCode } from "../services/api";
+import { getEmployeePayroll, getUsers, getUserByEmployeeCode, getSalaryBreakupByEmployeePayroll } from "../services/api";
 
-export default function ViewPayroll() {
-  const [id, setId] = useState("");
+export default function ViewPayroll({ employeeCode: propEmployeeCode = '', employeeId: propEmployeeId = '' }) {
+  const [id, setId] = useState(propEmployeeCode);
   const [data, setData] = useState(null);
   const [employees, setEmployees] = useState([]);
+  const [salaryBreakups, setSalaryBreakups] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -28,6 +29,17 @@ export default function ViewPayroll() {
     return employee ? employee.id : null;
   };
 
+  // Fetch salary breakups for a specific payroll record
+  const fetchSalaryBreakups = async (employeePayrollId) => {
+    try {
+      const response = await getSalaryBreakupByEmployeePayroll(employeePayrollId);
+      return response.data || [];
+    } catch (err) {
+      console.error("Error fetching salary breakups:", err);
+      return [];
+    }
+  };
+
   const fetchData = async () => {
     if (!id.trim()) {
       setError("Please enter an employee code");
@@ -36,6 +48,9 @@ export default function ViewPayroll() {
 
     setLoading(true);
     setError("");
+    // Clear previous data when starting new search
+    setData(null);
+    setSalaryBreakups({});
 
     try {
       // Direct API call to find employee by code
@@ -44,18 +59,97 @@ export default function ViewPayroll() {
       
       // Use employee ID for payroll API call
       const res = await getEmployeePayroll(employeeId);
-      setData(res.data);
+      const payrollData = res.data;
+      setData(payrollData);
+      
+      // Fetch salary breakups for each payroll record
+      const breakupsPromises = payrollData.map(async (payroll) => {
+        const breakups = await fetchSalaryBreakups(payroll.id);
+        return { payrollId: payroll.id, breakups };
+      });
+      
+      const breakupsResults = await Promise.all(breakupsPromises);
+      const breakupsMap = breakupsResults.reduce((acc, result) => {
+        acc[result.payrollId] = result.breakups;
+        return acc;
+      }, {});
+      
+      setSalaryBreakups(breakupsMap);
     } catch (err) {
-      setError(err.response?.data?.message || `Employee with code "${id}" not found`);
+      // Clear data on error
+      setData(null);
+      setSalaryBreakups({});
+      
+      // Extract employee code from error message or use the searched code
+      let errorMessage = err.response?.data?.message || '';
+      
+      // If error contains employeeId, replace it with employee code
+      if (errorMessage.includes('employeeId')) {
+        errorMessage = errorMessage.replace(/employeeId\s*\d+/, `employee code "${id.trim().toUpperCase()}"`);
+      }
+      
+      // If no specific error message, provide a generic one
+      if (!errorMessage) {
+        errorMessage = `No payroll data found for employee code "${id.trim().toUpperCase()}"`;
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  // Load employees on component mount
+  // Load employees on component mount and auto-load payroll data if props provided
   useEffect(() => {
     fetchEmployees();
-  }, []);
+    
+    // Auto-load payroll data if employee props are provided
+    if (propEmployeeCode || propEmployeeId) {
+      const autoLoadPayrollData = async () => {
+        setLoading(true);
+        setError("");
+        
+        try {
+          let res;
+          if (propEmployeeId) {
+            // Use employee ID directly if provided
+            res = await getEmployeePayroll(propEmployeeId);
+          } else if (propEmployeeCode) {
+            // Use employee code to get ID then fetch payroll
+            const employeeRes = await getUserByEmployeeCode(propEmployeeCode.trim());
+            const employeeId = employeeRes.data.id;
+            res = await getEmployeePayroll(employeeId);
+          }
+          
+          const payrollData = res.data;
+          setData(payrollData);
+          
+          // Fetch salary breakups for each payroll record
+          const breakupsPromises = payrollData.map(async (payroll) => {
+            const breakups = await fetchSalaryBreakups(payroll.id);
+            return { payrollId: payroll.id, breakups };
+          });
+          
+          const breakupsResults = await Promise.all(breakupsPromises);
+          const breakupsMap = breakupsResults.reduce((acc, result) => {
+            acc[result.payrollId] = result.breakups;
+            return acc;
+          }, {});
+          
+          setSalaryBreakups(breakupsMap);
+        } catch (err) {
+          console.error('Auto-load Payroll API Error:', err);
+          // Clear data on auto-load error and don't show error message
+          setData(null);
+          setSalaryBreakups({});
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      autoLoadPayrollData();
+    }
+  }, [propEmployeeCode, propEmployeeId]);
 
   return (
     <div className="view-payroll-container">
@@ -176,6 +270,26 @@ export default function ViewPayroll() {
                       <span className="value deduction">Rs. {(payroll.gross - payroll.netSalary)?.toLocaleString() || '0'}</span>
                     </div>
                   </div>
+                </div>
+                
+                <div className="detail-section">
+                  <h6>Salary Breakup</h6>
+                  {salaryBreakups[payroll.id] && salaryBreakups[payroll.id].length > 0 ? (
+                    <div className="salary-breakup-grid">
+                      {salaryBreakups[payroll.id].map((breakup, idx) => (
+                        <div key={idx} className={`breakup-item ${breakup.componentType?.toLowerCase()}`}>
+                          <span className="component-name">{breakup.componentName}</span>
+                          <span className={`component-amount ${breakup.componentType?.toLowerCase()}`}>
+                            {breakup.componentType === 'EARNING' ? '+' : '-'} Rs. {breakup.amount?.toLocaleString() || '0'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="no-breakup-data">
+                      <p>No salary breakup details available</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
