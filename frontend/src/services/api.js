@@ -1,24 +1,38 @@
 import axios from "axios";
 
-const API_BASE = "http://localhost:8080/api"; // Change port if your backend runs on a different port
+const BASE = "http://localhost:8080/api";
 
-export async function createUser(data) {
-  return axios.post(`${API_BASE}/users`, data);
-}
+const api = axios.create({
+  baseURL: BASE,
+  headers: { "Content-Type": "application/json" },
+});
 
-export async function createSalary(data) {
-  return axios.post(`${API_BASE}/salary-structures`, data);
-}
+// ─── Users ───────────────────────────────────────────────
+export const createUser = (data) => api.post("/users", data);
+export const getUsersByRole = (role) => api.get(`/users?role=${role}`);
+export const getUsersByDept = (dept) => api.get(`/users?department=${dept}`);
 
-export async function createPayrollCycle(data) {
-  return axios.post(`${API_BASE}/payroll-cycle`, data);
-}
+// ─── Salary Structure ─────────────────────────────────────
+export const createSalaryStructure = (data) => api.post("/salary-structures", data);
+export const getSalaryByEmployee = (empId) => api.get(`/salary-structures/employee/${empId}`);
+export const updateSalaryStructure = (id, data) => api.put(`/salary-structures/${id}`, data);
 
-export async function processPayroll(id) {
-  return axios.put(`${API_BASE}/payroll-cycle/${id}/process`);
-}
+// ─── Payroll Cycle ────────────────────────────────────────
+export const createPayrollCycle = (data) => api.post("/payroll-cycles", data);
+export const processPayrollCycle = (id) => api.put(`/payroll-cycles/${id}/process`);
+export const completePayrollCycle = (id) => api.put(`/payroll-cycles/${id}/complete`);
+export const cancelPayrollCycle = (id) => api.put(`/payroll-cycles/${id}/cancel`);
+export const getPayrollCycles = () => api.get("/payroll-cycles");
 
-export async function getPayroll(employeeId) {
-  // Adjust endpoint if needed
-  return axios.get(`${API_BASE}/employee-payrolls/${employeeId}`);
-}
+// ─── Employee Payroll ─────────────────────────────────────
+export const getEmployeePayroll = (empId) => api.get(`/employee-payrolls/employee/${empId}`);
+export const getPayrollByCycle = (cycleId) => api.get(`/employee-payrolls/cycle/${cycleId}`);
+export const markPayoutProcessed = (payrollId) => api.put(`/employee-payrolls/${payrollId}/payout`);
+
+// ─── Tax Computation ──────────────────────────────────────
+export const getTaxComputation = (empId, year) => api.get(`/tax-computations/employee/${empId}?year=${year}`);
+export const computeTax = (empId, year) => api.post(`/tax-computations/compute`, { employeeId: empId, financialYear: year });
+
+// ─── Deduction Rules ──────────────────────────────────────
+export const getDeductionRules = () => api.get("/deduction-rules");
+export const createDeductionRule = (data) => api.post("/deduction-rules", data);
