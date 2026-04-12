@@ -55,4 +55,14 @@ public class PayrollController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/update-totals")
+    public ResponseEntity<String> updatePayrollTotals() {
+        try {
+            payrollService.updateAllPayrollCyclesWithTotals();
+            return ResponseEntity.ok("Payroll cycles totals updated successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to update payroll totals: " + e.getMessage());
+        }
+    }
+
 }

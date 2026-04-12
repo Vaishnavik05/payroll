@@ -1,111 +1,130 @@
-import { useState, useEffect } from "react";
-import { getTax, getUsers } from "../services/api";
+import { useState } from "react";
+import { getTaxComputationsByEmployee, getLatestTaxComputationByEmployee } from "../services/api";
+import "./ViewTax.css";
 
 export default function ViewTax() {
-  const [id, setId] = useState("");
-  const [data, setData] = useState(null);
-  const [employees, setEmployees] = useState([]);
+  const [employeeCode, setEmployeeCode] = useState("");
+  const [financialYear, setFinancialYear] = useState("");
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleBack = () => {
-    window.location.href = '/employee';
-  };
-
-  // Fetch all employees to map employee codes to IDs
-  const fetchEmployees = async () => {
-    try {
-      const response = await getUsers();
-      setEmployees(response.data);
-    } catch (err) {
-      console.error("Error fetching employees:", err);
-    }
-  };
-
-  // Find employee by code and get their ID
-  const findEmployeeIdByCode = (employeeCode) => {
-    const employee = employees.find(emp => emp.employeeCode === employeeCode);
-    return employee ? employee.id : null;
-  };
-
   const fetchData = async () => {
-    if (!id.trim()) {
-      setError("Please enter an employee code");
+    if (!employeeCode) {
+      setError("Enter employee code");
       return;
     }
 
     setLoading(true);
     setError("");
+    setData([]);
 
     try {
-      // First fetch employees if not already loaded
-      if (employees.length === 0) {
-        await fetchEmployees();
-      }
+      const res = financialYear
+        ? await getTaxComputationsByEmployee(employeeCode, financialYear)
+        : await getTaxComputationsByEmployee(employeeCode);
 
-      // Find employee ID by code
-      const employeeId = findEmployeeIdByCode(id.trim());
-      
-      if (!employeeId) {
-        setError(`Employee with code "${id}" not found`);
-        return;
-      }
-
-      // Use employee ID for API call
-      const res = await getTax(employeeId);
-      setData(res.data);
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch tax data");
+      setData(res.data || []);
+    } catch {
+      setError("No data found");
     } finally {
       setLoading(false);
     }
   };
 
-  // Load employees on component mount
-  useEffect(() => {
-    fetchEmployees();
-  }, []);
+  const fetchLatest = async () => {
+    if (!employeeCode) {
+      setError("Enter employee code");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    setData([]);
+
+    try {
+      const res = await getLatestTaxComputationByEmployee(employeeCode);
+      setData(res.data ? [res.data] : []);
+    } catch {
+      setError("No latest record found");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="view-payroll-container">
-      <div className="form-header">
-        <button className="back-btn" onClick={handleBack}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
-          </svg>
-          Back to Dashboard
-        </button>
-        <h3>View Tax</h3>
+    <div className="tax-container">
+      <div className="header">
+        <h2>Tax Details</h2>
       </div>
 
-      {error && <div className="error-message">{error}</div>}
-
-      <div className="form-group">
-        <input 
-          placeholder="Employee Code (e.g., EMP001)" 
-          value={id}
-          onChange={(e)=>setId(e.target.value)}
-          className="form-input"
-          onKeyPress={(e) => {
-            if (e.key === 'Enter') {
-              fetchData();
-            }
-          }}
+      <div className="controls">
+        <input
+          placeholder="Employee Code (EMP001)"
+          value={employeeCode}
+          onChange={(e) => setEmployeeCode(e.target.value.toUpperCase())}
         />
-        <button 
-          onClick={fetchData} 
-          className="submit-btn"
-          disabled={loading}
-        >
-          {loading ? "Loading..." : "Load"}
-        </button>
+
+        <input
+          placeholder="Financial Year (2024-2025)"
+          value={financialYear}
+          onChange={(e) => setFinancialYear(e.target.value)}
+        />
+
+        <div className="btns">
+          <button onClick={fetchData} disabled={loading}>
+            {loading ? "Loading..." : "Fetch"}
+          </button>
+          <button onClick={fetchLatest} disabled={loading}>
+            Latest
+          </button>
+        </div>
       </div>
 
-      {data && (
-        <div className="data-section">
-          <h4>Tax Data</h4>
-          <pre className="data-display">{JSON.stringify(data, null, 2)}</pre>
+      {error && <div className="error">{error}</div>}
+
+      {data.length > 0 && (
+        <div className="cards">
+          {data.map((item) => (
+            <div className="card" key={item.id}>
+              <h4>{item.financialYear}</h4>
+
+              <div className="row">
+                <span>Total Income</span>
+                <span>₹{item.totalIncome}</span>
+              </div>
+
+              <div className="row">
+                <span>Taxable Income</span>
+                <span>₹{item.taxableIncome}</span>
+              </div>
+
+              <div className="row">
+                <span>Tax Payable</span>
+                <span>₹{item.taxPayable}</span>
+              </div>
+
+              <div className="row">
+                <span>Total Tax</span>
+                <span>₹{item.totalTax}</span>
+              </div>
+
+              <div className="row">
+                <span>TDS Deducted</span>
+                <span>₹{item.taxDeducted}</span>
+              </div>
+
+              <div className="row">
+                <span>Status</span>
+                <span className="status">{item.taxStatus}</span>
+              </div>
+            </div>
+          ))}
         </div>
+      )}
+
+      {!loading && data.length === 0 && !error && (
+        <div className="empty">No Tax Data</div>
       )}
     </div>
   );

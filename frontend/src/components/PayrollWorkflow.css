@@ -1,0 +1,514 @@
+.payroll-workflow {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.workflow-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.workflow-header h2 {
+  color: #111827;
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.reset-btn {
+  background: #6b7280;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.reset-btn:hover {
+  background: #4b5563;
+}
+
+.error-message, .success-message {
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.error-message {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.success-message {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+.workflow-progress {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  position: relative;
+}
+
+.progress-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: #e5e7eb;
+  z-index: 1;
+}
+
+.progress-step.active:not(:last-child)::after {
+  background: #3b82f6;
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 2;
+}
+
+.progress-step.active .step-number {
+  background: #3b82f6;
+  color: white;
+}
+
+.step-label {
+  font-size: 12px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.progress-step.active .step-label {
+  color: #3b82f6;
+  font-weight: 500;
+}
+
+.workflow-content {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.workflow-step h3 {
+  color: #111827;
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.payroll-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.payroll-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.payroll-item:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+}
+
+.payroll-item.selected {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.payroll-item.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #f9fafb;
+}
+
+.payroll-item.disabled:hover {
+  border-color: #e5e7eb;
+  box-shadow: none;
+  transform: none;
+}
+
+.payroll-status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0;
+}
+
+.status-badge {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.draft {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.status-badge.processing {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.status-badge.completed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.disabled-text {
+  color: #6b7280;
+  font-size: 12px;
+  font-style: italic;
+}
+
+.warning-message {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: #fef3c7;
+  color: #d97706;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.payroll-info h4 {
+  margin: 0 0 4px 0;
+  color: #111827;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.payroll-info p {
+  margin: 2px 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.payroll-amount {
+  font-size: 18px;
+  font-weight: 600;
+  color: #3b82f6;
+}
+
+.employee-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: #f9fafb;
+  border-radius: 6px;
+}
+
+.select-all-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.select-all-btn:hover {
+  background: #2563eb;
+}
+
+.selected-count {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.employee-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.employee-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.employee-item:hover {
+  border-color: #3b82f6;
+  background: #f9fafb;
+}
+
+.employee-item.selected {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.employee-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.employee-info {
+  flex: 1;
+}
+
+.employee-info h4 {
+  margin: 0 0 2px 0;
+  color: #111827;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.employee-info p {
+  margin: 1px 0;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.employee-salary {
+  font-size: 14px;
+  font-weight: 600;
+  color: #3b82f6;
+}
+
+.step-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.back-btn {
+  background: #6b7280;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.back-btn:hover {
+  background: #4b5563;
+}
+
+.next-btn, .process-btn, .new-payroll-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.next-btn:hover, .process-btn:hover, .new-payroll-btn:hover {
+  background: #2563eb;
+}
+
+.next-btn:disabled, .process-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.breakup-summary {
+  margin: 20px 0;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 6px;
+}
+
+.breakup-summary h4 {
+  margin: 0 0 12px 0;
+  color: #111827;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.breakup-summary ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #374151;
+}
+
+.breakup-summary li {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+.employee-payroll-summary {
+  margin: 20px 0;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 6px;
+}
+
+.employee-payroll-summary h4 {
+  margin: 0 0 12px 0;
+  color: #111827;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.employee-payroll-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.employee-payroll-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: white;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+  font-size: 12px;
+}
+
+.employee-payroll-item .employee-name {
+  font-weight: 600;
+  color: #111827;
+  flex: 1;
+}
+
+.employee-payroll-item .employee-code {
+  color: #6b7280;
+  margin: 0 8px;
+}
+
+.employee-payroll-item .gross-salary,
+.employee-payroll-item .net-salary {
+  color: #059669;
+  font-weight: 500;
+  margin: 0 8px;
+}
+
+.employee-payroll-item .status {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.employee-payroll-item .status.processing {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.employee-payroll-item .status.completed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.employee-payroll-item .status.draft {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .payroll-workflow {
+    padding: 16px;
+  }
+  
+  .workflow-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+  
+  .workflow-progress {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .progress-step:not(:last-child)::after {
+    display: none;
+  }
+  
+  .payroll-item, .employee-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .step-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .step-actions button {
+    width: 100%;
+  }
+}

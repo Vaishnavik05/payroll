@@ -46,7 +46,9 @@ CREATE TABLE payroll_cycle (
     end_date DATE,
     payment_date DATE,
     status ENUM('DRAFT','PROCESSING','COMPLETED','CANCELLED') DEFAULT 'DRAFT',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    total_amount DECIMAL(12,2) DEFAULT 0,
+    total_employees INT DEFAULT 0
 );
 
 
@@ -78,7 +80,7 @@ CREATE TABLE salary_breakup (
 
 CREATE TABLE tax_computation (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    employee_id BIGINT,
+    employee_id BIGINT NOT NULL,
     financialYear VARCHAR(10),
     totalIncome DECIMAL(12,2),
     totalDeductions DECIMAL(12,2),
@@ -87,6 +89,7 @@ CREATE TABLE tax_computation (
     cess DECIMAL(10,2),
     totalTax DECIMAL(12,2),
     taxDeducted DECIMAL(12,2),
-    taxStatus ENUM('PENDING','COMPUTED','FILED'),
+    taxStatus ENUM('PENDING','COMPUTED','FILED') DEFAULT 'COMPUTED',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (employee_id) REFERENCES user(id)
 );

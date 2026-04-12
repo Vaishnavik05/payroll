@@ -201,258 +201,252 @@ export default function ViewTaxComputation({ employeeCode: propEmployeeCode = ''
     });
   };
 
-  return (
-    <div className="tax-computation-container">
-      <div className="form-header">
-        <button className="back-btn" onClick={handleBack}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
-          </svg>
-          Back to Dashboard
-        </button>
-        <h3>Tax Computation Details</h3>
-      </div>
+return (
+  <div className="tax-computation-container">
+    {/* Quick Action Buttons */}
+    <div className="quick-actions">
+      <button className="action-btn payroll-btn" onClick={() => window.location.href = '/payroll'}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4 4m0 0a4 4 0 0 0 4 4v2m-1 1a1 1 0 0 0 1 1v2m0 0a1 1 0 0 1 1"/>
+        </svg>
+        View Payroll
+      </button>
+      <button className="action-btn tax-btn" onClick={() => window.location.href = '/tax'}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M9 14H4m0 0a2 2 0 0 0 2v10a2 2 0 0 0 2h16a2 2 0 0 0 2M9 14l7 7m0 0a2 2 0 0 0 2v10a2 2 0 0 0 2"/>
+        </svg>
+        Tax Information
+      </button>
+    </div>
 
-      {error && (
-        <div className="error-message">
-          <div className="error-header">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="15" y1="9" x2="9" y2="15"/>
-              <line x1="9" y1="9" x2="15" y2="15"/>
-            </svg>
-            <span>Error</span>
-          </div>
-          <div className="error-content">{error}</div>
+    {/* Header */}
+    <div className="form-header">
+      <h3>Tax Computation Details</h3>
+    </div>
+    
+    {error && (
+      <div className="error-message">
+        <div className="error-header">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="15" y1="9" x2="9" y2="15"/>
+            <line x1="9" y1="9" x2="15" y2="15"/>
+          </svg>
+          <span>Error</span>
         </div>
+        <div className="error-content">{error}</div>
+      </div>
+    )}
+    
+    {success && (
+      <div className="success-message">
+        <div className="success-header">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          <span>Success</span>
+        </div>
+        <div className="success-content">{success}</div>
+      </div>
+    )}
+
+    <div className="input-controls">
+      {viewMode === 'employee' && (
+        <>
+          <div className="input-group">
+            <label>Employee Code</label>
+            <input
+              type="text"
+              value={employeeCode}
+              onChange={(e) => {
+                setEmployeeCode(e.target.value);
+                if (validationErrors.employeeCode) {
+                  setValidationErrors({...validationErrors, employeeCode: ''});
+                }
+              }}
+              placeholder="EMP001"
+              className={validationErrors.employeeCode ? 'error' : ''}
+            />
+            {validationErrors.employeeCode && (
+              <span className="error-text">{validationErrors.employeeCode}</span>
+            )}
+          </div>
+          <div className="input-group">
+            <label>Financial Year</label>
+            <input
+              type="text"
+              value={financialYear}
+              onChange={(e) => {
+                setFinancialYear(e.target.value);
+                if (validationErrors.financialYear) {
+                  setValidationErrors({...validationErrors, financialYear: ''});
+                }
+              }}
+              placeholder="2024-2025"
+              className={validationErrors.financialYear ? 'error' : ''}
+            />
+            {validationErrors.financialYear && (
+              <span className="error-text">{validationErrors.financialYear}</span>
+            )}
+          </div>
+          <div className="button-group">
+            <button 
+              className="fetch-btn"
+              onClick={fetchTaxData}
+              disabled={loading}
+            >
+              {loading ? 'Loading...' : 'Fetch Tax Data'}
+            </button>
+            <button 
+              className="fetch-btn secondary"
+              onClick={fetchLatestTax}
+              disabled={loading}
+            >
+              {loading ? 'Loading...' : 'Latest Tax'}
+            </button>
+          </div>
+        </>
       )}
       
-      {success && (
-        <div className="success-message">
-          <div className="success-header">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-              <polyline points="22 4 12 14.01 9 11.01"/>
-            </svg>
-            <span>Success</span>
+      {viewMode === 'summary' && (
+        <>
+          <div className="input-group">
+            <label>Financial Year</label>
+            <input
+              type="text"
+              value={financialYear}
+              onChange={(e) => {
+                setFinancialYear(e.target.value);
+                if (validationErrors.financialYear) {
+                  setValidationErrors({...validationErrors, financialYear: ''});
+                }
+              }}
+              placeholder="2024-2025"
+              required
+              className={validationErrors.financialYear ? 'error' : ''}
+            />
+            {validationErrors.financialYear && (
+              <span className="error-text">{validationErrors.financialYear}</span>
+            )}
           </div>
-          <div className="success-content">{success}</div>
+          <div className="button-group">
+            <button 
+              className="fetch-btn"
+              onClick={fetchTaxData}
+              disabled={loading}
+            >
+              {loading ? 'Loading...' : 'Get Summary'}
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+
+    <div className="results-section">
+      {summaryData && (
+        <div className="summary-card">
+          <h4>Tax Summary - {summaryData.financialYear}</h4>
+          <div className="summary-grid">
+            <div className="summary-item">
+              <span className="label">Total Employees</span>
+              <span className="value">{summaryData.totalEmployees}</span>
+            </div>
+            <div className="summary-item">
+              <span className="label">Total Annual Income</span>
+              <span className="value">{formatCurrency(summaryData.totalAnnualIncome)}</span>
+            </div>
+            <div className="summary-item">
+              <span className="label">Total Tax Collected</span>
+              <span className="value">{formatCurrency(summaryData.totalTaxCollected)}</span>
+            </div>
+            <div className="summary-item">
+              <span className="label">Total TDS Deducted</span>
+              <span className="value">{formatCurrency(summaryData.totalTDSDeducted)}</span>
+            </div>
+            <div className="summary-item">
+              <span className="label">Average Tax Per Employee</span>
+              <span className="value">{formatCurrency(summaryData.averageTaxPerEmployee)}</span>
+            </div>
+          </div>
         </div>
       )}
 
-      <div className="controls-section">
-        <div className="view-mode-toggle">
-          <button 
-            className={`mode-btn ${viewMode === 'employee' ? 'active' : ''}`}
-            onClick={() => setViewMode('employee')}
-          >
-            Employee View
-          </button>
-          <button 
-            className={`mode-btn ${viewMode === 'summary' ? 'active' : ''}`}
-            onClick={() => setViewMode('summary')}
-          >
-            Summary View
-          </button>
-        </div>
-
-        <div className="input-controls">
-          {viewMode === 'employee' && (
-            <>
-              <div className="input-group">
-                <label>Employee Code *</label>
-                <input
-                  type="text"
-                  value={employeeCode}
-                  onChange={(e) => {
-                    setEmployeeCode(e.target.value);
-                    if (validationErrors.employeeCode) {
-                      setValidationErrors({...validationErrors, employeeCode: ''});
-                    }
-                  }}
-                  placeholder="Enter Employee Code (e.g., EMP001, EMP100)"
-                  className={validationErrors.employeeCode ? 'error' : ''}
-                />
-                {validationErrors.employeeCode && (
-                  <span className="error-text">{validationErrors.employeeCode}</span>
-                )}
+      {taxData.length > 0 && (
+        <div className="tax-data-grid">
+          <h4>Tax Computation Records</h4>
+          {taxData.map((tax) => (
+            <div key={tax.id} className="tax-card">
+              <div className="tax-header">
+                <h5>Financial Year: {tax.financialYear}</h5>
+                <span className={`status-badge ${tax.taxStatus?.toLowerCase() || 'computed'}`}>
+                  {tax.taxStatus || 'COMPUTED'}
+                </span>
               </div>
-              <div className="input-group">
-                <label>Financial Year (Optional)</label>
-                <input
-                  type="text"
-                  value={financialYear}
-                  onChange={(e) => {
-                    setFinancialYear(e.target.value);
-                    if (validationErrors.financialYear) {
-                      setValidationErrors({...validationErrors, financialYear: ''});
-                    }
-                  }}
-                  placeholder="e.g., 2024-2025"
-                  className={validationErrors.financialYear ? 'error' : ''}
-                />
-                {validationErrors.financialYear && (
-                  <span className="error-text">{validationErrors.financialYear}</span>
-                )}
-              </div>
-              <div className="button-group">
-                <button 
-                  className="fetch-btn"
-                  onClick={fetchTaxData}
-                  disabled={loading}
-                >
-                  {loading ? 'Loading...' : 'Fetch Tax Data'}
-                </button>
-                <button 
-                  className="fetch-btn secondary"
-                  onClick={fetchLatestTax}
-                  disabled={loading}
-                >
-                  {loading ? 'Loading...' : 'Latest Tax'}
-                </button>
-              </div>
-            </>
-          )}
-          
-          {viewMode === 'summary' && (
-            <>
-              <div className="input-group">
-                <label>Financial Year *</label>
-                <input
-                  type="text"
-                  value={financialYear}
-                  onChange={(e) => {
-                    setFinancialYear(e.target.value);
-                    if (validationErrors.financialYear) {
-                      setValidationErrors({...validationErrors, financialYear: ''});
-                    }
-                  }}
-                  placeholder="e.g., 2024-2025"
-                  required
-                  className={validationErrors.financialYear ? 'error' : ''}
-                />
-                {validationErrors.financialYear && (
-                  <span className="error-text">{validationErrors.financialYear}</span>
-                )}
-              </div>
-              <div className="button-group">
-                <button 
-                  className="fetch-btn"
-                  onClick={fetchTaxData}
-                  disabled={loading || !financialYear.trim()}
-                >
-                  {loading ? 'Loading...' : 'Get Summary'}
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-
-      <div className="results-section">
-        {summaryData && (
-          <div className="summary-card">
-            <h4>Tax Summary - {summaryData.financialYear}</h4>
-            <div className="summary-grid">
-              <div className="summary-item">
-                <span className="label">Total Employees</span>
-                <span className="value">{summaryData.totalEmployees}</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Total Annual Income</span>
-                <span className="value">{formatCurrency(summaryData.totalAnnualIncome)}</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Total Tax Collected</span>
-                <span className="value">{formatCurrency(summaryData.totalTaxCollected)}</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Total TDS Deducted</span>
-                <span className="value">{formatCurrency(summaryData.totalTDSDeducted)}</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Average Tax Per Employee</span>
-                <span className="value">{formatCurrency(summaryData.averageTaxPerEmployee)}</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {taxData.length > 0 && (
-          <div className="tax-data-grid">
-            <h4>Tax Computation Records</h4>
-            {taxData.map((tax) => (
-              <div key={tax.id} className="tax-card">
-                <div className="tax-header">
-                  <h5>Financial Year: {tax.financialYear}</h5>
-                  <span className={`status-badge ${tax.taxStatus?.toLowerCase() || 'computed'}`}>
-                    {tax.taxStatus || 'COMPUTED'}
-                  </span>
+              
+              <div className="tax-details">
+                <div className="detail-row">
+                  <span className="detail-label">Total Income:</span>
+                  <span className="detail-value">{formatCurrency(tax.totalIncome)}</span>
                 </div>
-                
-                <div className="tax-details">
-                  <div className="detail-row">
-                    <span className="detail-label">Total Income:</span>
-                    <span className="detail-value">{formatCurrency(tax.totalIncome)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Taxable Income:</span>
-                    <span className="detail-value">{formatCurrency(tax.taxableIncome)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Tax Payable:</span>
-                    <span className="detail-value">{formatCurrency(tax.taxPayable)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Total Tax:</span>
-                    <span className="detail-value">{formatCurrency(tax.totalTax)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">TDS Deducted:</span>
-                    <span className="detail-value">{formatCurrency(tax.taxDeducted)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Total Deductions:</span>
-                    <span className="detail-value">{formatCurrency(tax.totalDeductions)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Cess:</span>
-                    <span className="detail-value">{formatCurrency(tax.cess || 0)}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Computed On:</span>
-                    <span className="detail-value">{formatDate(tax.createdAt)}</span>
-                  </div>
+                <div className="detail-row">
+                  <span className="detail-label">Taxable Income:</span>
+                  <span className="detail-value">{formatCurrency(tax.taxableIncome)}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Tax Payable:</span>
+                  <span className="detail-value">{formatCurrency(tax.taxPayable)}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Total Tax:</span>
+                  <span className="detail-value">{formatCurrency(tax.totalTax)}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">TDS Deducted:</span>
+                  <span className="detail-value">{formatCurrency(tax.taxDeducted)}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Total Deductions:</span>
+                  <span className="detail-value">{formatCurrency(tax.totalDeductions)}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Cess:</span>
+                  <span className="detail-value">{formatCurrency(tax.cess || 0)}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Computed On:</span>
+                  <span className="detail-value">{formatDate(tax.createdAt)}</span>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          ))}
+        </div>
+      )}
 
-        {taxData.length === 0 && !summaryData && !loading && (
-          <div className="no-data">
-            <div className="no-data-icon">
-              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M9 11l3 3L22 9l-3-3"/>
-                <path d="M21 12v-1a2 2 0 0 0-2-2h-3"/>
-                <path d="M8 21H4"/>
-                <circle cx="12" cy="12" r="10"/>
-              </svg>
-            </div>
-            <h4>No Tax Data Found</h4>
-            <p>No tax computation records found for the specified criteria.</p>
-            <div className="no-data-actions">
-              <button onClick={() => {
-                setEmployeeCode('');
-                setFinancialYear('');
-                setValidationErrors({});
-              }} className="clear-btn">
-                Clear Filters
-              </button>
-            </div>
+      {taxData.length === 0 && !summaryData && !loading && (
+        <div className="no-data">
+          <div className="no-data-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M9 11l3 3L22 9l-3-3"/>
+              <path d="M21 12v-1a2 2 0 0 0-2-2h-3"/>
+              <path d="M8 21H4"/>
+              <circle cx="12" cy="12" r="10"/>
+            </svg>
           </div>
-        )}
-      </div>
+          <h4>No Tax Data Found</h4>
+          <p>No tax computation records found for the specified criteria.</p>
+          <div className="no-data-actions">
+            <button onClick={() => {
+              setEmployeeCode('');
+              setFinancialYear('');
+              setValidationErrors({});
+            }} className="clear-btn">
+              Clear Filters
+            </button>
+          </div>
+        </div>
+      )}
     </div>
+  </div>
   );
 }

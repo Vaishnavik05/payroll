@@ -1,7 +1,9 @@
 package com.corporate.payroll.controller;
 
 import com.corporate.payroll.entity.TaxComputation;
+import com.corporate.payroll.entity.User;
 import com.corporate.payroll.repository.TaxComputationRepository;
+import com.corporate.payroll.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,7 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:3000")
 public class TaxComputationController {
     private final TaxComputationRepository taxComputationRepository;
+    private final UserRepository userRepository;
 
     @GetMapping
     public ResponseEntity<List<TaxComputation>> getAllTaxComputations() {
@@ -76,5 +79,57 @@ public class TaxComputationController {
         );
         
         return ResponseEntity.ok(summary);
+    }
+
+    @PostMapping
+    public ResponseEntity<TaxComputation> createTaxComputation(@RequestBody TaxComputation taxComputation) {
+        try {
+            // Validate employee exists
+            if (taxComputation.getEmployee() == null || taxComputation.getEmployee().getId() == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            
+            User employee = userRepository.findById(taxComputation.getEmployee().getId())
+                    .orElse(null);
+            
+            if (employee == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            
+            // Explicitly set the employee reference to ensure proper mapping
+            taxComputation.setEmployee(employee);
+            
+            // Save the tax computation
+            TaxComputation savedComputation = taxComputationRepository.save(taxComputation);
+            return ResponseEntity.ok(savedComputation);
+            
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/employee/{employeeCode}")
+    public ResponseEntity<TaxComputation> createTaxComputationForEmployee(
+            @PathVariable String employeeCode,
+            @RequestBody TaxComputation taxComputation) {
+        try {
+            // Find employee by employee code
+            User employee = userRepository.findByEmployeeCode(employeeCode)
+                    .orElse(null);
+            
+            if (employee == null) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            // Set the employee reference
+            taxComputation.setEmployee(employee);
+            
+            // Save the tax computation
+            TaxComputation savedComputation = taxComputationRepository.save(taxComputation);
+            return ResponseEntity.ok(savedComputation);
+            
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

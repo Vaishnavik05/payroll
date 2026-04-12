@@ -45,10 +45,14 @@ public class TaxComputation {
     @Column(name = "taxStatus")
     private String taxStatus;
     
+    @Column(name = "created_at")
+    private java.time.LocalDateTime createdAt;
+    
     @PrePersist
     protected void onCreate() {
         if (taxStatus == null) {
             taxStatus = "COMPUTED";
         }
+        createdAt = java.time.LocalDateTime.now();
     }
 }

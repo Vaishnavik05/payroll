@@ -11,4 +11,5 @@ public interface SalaryBreakupRepository extends JpaRepository<SalaryBreakup, Lo
     List<SalaryBreakup> findByEmployeePayrollEmployeeId(Long employeeId);
     List<SalaryBreakup> findByEmployeePayrollPayrollCycleId(Long payrollCycleId);
     void deleteByEmployeePayrollId(Long employeePayrollId);
+    void deleteByEmployeePayroll(EmployeePayroll employeePayroll);
 }

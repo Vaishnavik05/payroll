@@ -31,6 +31,8 @@ export const completePayroll = (id) =>
   API.put(`/payroll-cycles/${id}/complete`);
 
 export const getPayrolls = () => API.get("/payroll-cycles");
+export const getAllPayrolls = () => API.get("/employee-payrolls/all");
+export const getPayrollSummary = () => API.get("/employee-payrolls/summary");
 
 export const getEmployeePayroll = (id) =>
   API.get(`/payslips/employee/${id}`);
@@ -42,10 +44,26 @@ export const getDeductionRules = () => API.get("/deduction-rules");
 export const updateDeductionRule = (id, data) => API.put(`/deduction-rules/${id}`, data);
 export const deleteDeductionRule = (id) => API.delete(`/deduction-rules/${id}`);
 
-export const getTaxComputationsByEmployee = (employeeId) => API.get(`/tax-computations/employee/${employeeId}`);
-export const getTaxComputationsByEmployeeAndFinancialYear = (employeeId, financialYear) => API.get(`/tax-computations/employee/${employeeId}/financial-year/${financialYear}`);
-export const getLatestTaxComputationByEmployee = (employeeId) => API.get(`/tax-computations/employee/${employeeId}/latest`);
+export const getTaxComputationsByEmployee = (code, year) =>
+  year
+    ? API.get(`/tax-computations/employee/${code}/financial-year/${year}`)
+    : API.get(`/tax-computations/employee/${code}`);
+
+export const getEmployees = () => API.get("/users");
+export const getEmployeePayrollByEmployeeAndPayroll = (employeeId, payrollCycleId) => API.get(`/employee-payrolls/employee/${employeeId}/payroll-cycle/${payrollCycleId}`);
+export const createEmployeePayroll = (data) => API.post("/employee-payrolls", data);
+export const processPayrollPayout = (payrollId, data) => API.post(`/payroll-cycles/${payrollId}/payout`, data);
+
+export const getTaxComputationsByEmployeeAndFinancialYear = (employeeCode, financialYear) => 
+  API.get(`/tax-computations/employee/${employeeCode}/financial-year/${financialYear}`);
+
+export const getLatestTaxComputationByEmployee = (code) =>
+  API.get(`/tax-computations/employee/${code}/latest`);
+
 export const getTaxSummaryByFinancialYear = (financialYear) => API.get(`/tax-computations/summary/financial-year/${financialYear}`);
+
+export const createTaxComputation = (data) => API.post("/tax-computations", data);
+export const createTaxComputationForEmployee = (employeeCode, data) => API.post(`/tax-computations/employee/${employeeCode}`, data);
 
 export const getSalaryBreakups = () => API.get("/salary-breakup");
 export const getSalaryBreakupById = (id) => API.get(`/salary-breakup/${id}`);
@@ -57,5 +75,11 @@ export const createSalaryBreakups = (data) => API.post("/salary-breakup/batch", 
 export const updateSalaryBreakup = (id, data) => API.put(`/salary-breakup/${id}`, data);
 export const deleteSalaryBreakup = (id) => API.delete(`/salary-breakup/${id}`);
 export const deleteSalaryBreakupByEmployeePayroll = (employeePayrollId) => API.delete(`/salary-breakup/employee-payroll/${employeePayrollId}`);
+
+export const getDashboardStats = () => API.get("/dashboard/stats");
+export const getRecentActivity = () => API.get("/dashboard/recent-activity");
+
+export const updatePayrollTotals = () => API.post("/payroll/update-totals");
+export const getEmployeePayrollsByPayrollCycle = (payrollCycleId) => API.get(`/employee-payrolls/payroll-cycle/${payrollCycleId}`);
 
 export default API;

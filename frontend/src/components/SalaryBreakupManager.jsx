@@ -283,48 +283,55 @@ export default function SalaryBreakupManager() {
         )}
         
         {!loading && breakups.length > 0 && (
-          <div className="breakups-grid">
-            {breakups.map(breakup => (
-              <div key={breakup.id} className="breakup-card">
-                <div className="card-header">
-                  <h4>{breakup.componentName}</h4>
-                  <span 
-                    className="component-type-badge"
-                    style={{ backgroundColor: getComponentTypeColor(breakup.componentType) }}
-                  >
-                    {breakup.componentType}
-                  </span>
-                </div>
-                
-                <div className="card-content">
-                  <div className="amount-display">
-                    <span className="amount">Rs. {breakup.amount?.toLocaleString()}</span>
-                  </div>
-                  
-                  {breakup.calculationFormula && (
-                    <div className="formula">
-                      <strong>Formula:</strong> {breakup.calculationFormula}
-                    </div>
-                  )}
-                  
-                </div>
-                
-                <div className="card-actions">
-                  <button 
-                    onClick={() => handleEdit(breakup)} 
-                    className="edit-btn"
-                  >
-                    Edit
-                  </button>
-                  <button 
-                    onClick={() => handleDelete(breakup.id)} 
-                    className="delete-btn"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
+          <div className="breakups-table-container">
+            <table className="breakups-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Component Name</th>
+                  <th>Component Type</th>
+                  <th>Amount</th>
+                  <th>Calculation Formula</th>
+                  <th>Employee Payroll ID</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {breakups.map(breakup => (
+                  <tr key={breakup.id}>
+                    <td>{breakup.id}</td>
+                    <td>{breakup.componentName}</td>
+                    <td>
+                      <span 
+                        className="component-type-badge"
+                        style={{ backgroundColor: getComponentTypeColor(breakup.componentType) }}
+                      >
+                        {breakup.componentType}
+                      </span>
+                    </td>
+                    <td>Rs. {breakup.amount?.toLocaleString()}</td>
+                    <td>{breakup.calculationFormula || '-'}</td>
+                    <td>{breakup.employeePayroll?.id || breakup.employeePayrollId || '-'}</td>
+                    <td>
+                      <div className="action-buttons">
+                        <button 
+                          onClick={() => handleEdit(breakup)} 
+                          className="edit-btn"
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(breakup.id)} 
+                          className="delete-btn"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>

@@ -1,0 +1,110 @@
+.payroll-list-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 24px 0;
+  background: #f7f8fa;
+  border-radius: 12px;
+}
+
+.payroll-list-header {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 18px;
+  text-align: left;
+  color: #222;
+  padding-left: 12px;
+}
+
+.payroll-list-count {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 18px;
+  padding-left: 12px;
+}
+
+.payroll-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 18px 20px;
+  margin-bottom: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-left: 4px solid #2563eb;
+  transition: box-shadow 0.2s;
+}
+
+.payroll-card:last-child {
+  margin-bottom: 0;
+}
+
+.payroll-info {
+  flex: 1;
+}
+
+.payroll-period {
+  font-weight: 600;
+  color: #2563eb;
+  margin-bottom: 6px;
+  font-size: 1.08rem;
+}
+
+.payroll-dates {
+  font-size: 0.98rem;
+  color: #444;
+  margin-bottom: 4px;
+}
+
+.payroll-id {
+  font-size: 0.92rem;
+  color: #888;
+  margin-top: 2px;
+}
+
+.payroll-status {
+  min-width: 90px;
+  text-align: center;
+  font-size: 0.98rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 6px;
+  margin-left: 18px;
+  margin-top: 2px;
+  letter-spacing: 0.5px;
+  display: inline-block;
+}
+
+.payroll-status.COMPLETED {
+  background: #e6f9ed;
+  color: #15803d;
+  border: 1px solid #b2f2bb;
+}
+
+.payroll-status.PROCESSING {
+  background: #fff7e6;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.payroll-status.DRAFT {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+@media (max-width: 700px) {
+  .payroll-list-container {
+    max-width: 98vw;
+    padding: 10px 0;
+  }
+  .payroll-card {
+    flex-direction: column;
+    padding: 14px 10px;
+  }
+  .payroll-status {
+    margin-left: 0;
+    margin-top: 10px;
+    width: 100%;
+  }
+}

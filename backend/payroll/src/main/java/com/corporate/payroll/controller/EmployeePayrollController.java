@@ -6,6 +6,7 @@ import com.corporate.payroll.entity.EmployeePayroll;
 import com.corporate.payroll.entity.SalaryBreakup;
 import com.corporate.payroll.repository.EmployeePayrollRepository;
 import com.corporate.payroll.repository.SalaryBreakupRepository;
+import com.corporate.payroll.repository.PayrollCycleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 public class EmployeePayrollController {
     private final EmployeePayrollRepository employeePayrollRepository;
     private final SalaryBreakupRepository salaryBreakupRepository;
+    private final PayrollCycleRepository payrollCycleRepository;
 
     @GetMapping("/{id}/breakup")
     public ResponseEntity<List<SalaryBreakupDTO>> getSalaryBreakup(@PathVariable Long id) {
@@ -43,12 +45,38 @@ public class EmployeePayrollController {
         return ResponseEntity.ok(convertToEmployeePayrollDTO(payroll));
     }
     
+    @GetMapping("/all")
+    public ResponseEntity<List<EmployeePayrollDTO>> getAllEmployeePayrolls() {
+        List<EmployeePayroll> payrolls = employeePayrollRepository.findAll();
+        List<EmployeePayrollDTO> payrollDTOs = payrolls.stream()
+            .map(this::convertToEmployeePayrollDTO)
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(payrollDTOs);
+    }
+    
     @GetMapping("/employee/{employeeCode}")
     public ResponseEntity<List<EmployeePayrollDTO>> getEmployeePayrollsByEmployeeCode(@PathVariable String employeeCode) {
         List<EmployeePayroll> payrolls = employeePayrollRepository.findAll().stream()
             .filter(p -> p.getEmployee() != null && employeeCode.equals(p.getEmployee().getEmployeeCode()))
             .collect(Collectors.toList());
             
+        List<EmployeePayrollDTO> payrollDTOs = payrolls.stream()
+            .map(this::convertToEmployeePayrollDTO)
+            .collect(Collectors.toList());
+            
+        return ResponseEntity.ok(payrollDTOs);
+    }
+    
+    @GetMapping("/payroll-cycle/{payrollCycleId}")
+    public ResponseEntity<List<EmployeePayrollDTO>> getEmployeePayrollsByPayrollCycle(@PathVariable Long payrollCycleId) {
+        // Verify payroll cycle exists
+        payrollCycleRepository.findById(payrollCycleId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Payroll cycle not found"));
+        
+        // Find all employee payrolls for this payroll cycle
+        List<EmployeePayroll> payrolls = employeePayrollRepository.findByPayrollCycleId(payrollCycleId);
+        
+        // Convert to DTOs
         List<EmployeePayrollDTO> payrollDTOs = payrolls.stream()
             .map(this::convertToEmployeePayrollDTO)
             .collect(Collectors.toList());
