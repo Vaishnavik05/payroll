@@ -81,5 +81,18 @@ export const getRecentActivity = () => API.get("/dashboard/recent-activity");
 
 export const updatePayrollTotals = () => API.post("/payroll/update-totals");
 export const getEmployeePayrollsByPayrollCycle = (payrollCycleId) => API.get(`/employee-payrolls/payroll-cycle/${payrollCycleId}`);
+export const cancelPayroll = (cycleId) => API.post(`/payroll/cancel/${cycleId}`);
+export const markEmployeeLeftOut = (data) => API.post(`/payroll/mark-left-out`, data);
+export const cleanupDuplicatePayslips = () => API.post('/payroll/cleanup-duplicates');
+export const downloadPayslipPdf = (payrollId) => API.get(`/employee-payrolls/${payrollId}/download-pdf`, {
+  responseType: 'blob'
+});
+
+// Tax Processing APIs
+export const processTaxComputations = (financialYear) => API.post(`/tax-processing/process/${financialYear}`);
+export const processCurrentYearTaxComputations = () => API.post('/tax-processing/process-current-year');
+export const getTaxSummary = (financialYear) => API.get(`/tax-processing/summary/${financialYear}`);
+export const getCurrentYearTaxSummary = () => API.get('/tax-processing/summary/current-year');
+export const testTaxService = () => API.get('/tax-processing/test');
 
 export default API;

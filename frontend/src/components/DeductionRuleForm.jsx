@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createDeductionRule, getDeductionRules, updateDeductionRule, deleteDeductionRule } from '../services/api';
+import './DeductionRuleForm.css';
 
 export default function DeductionRuleForm() {
   const [rules, setRules] = useState([]);

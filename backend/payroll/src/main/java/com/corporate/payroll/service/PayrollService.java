@@ -25,8 +25,22 @@ public class PayrollService {
     public void processPayroll(Long cycleId) {
         PayrollCycle cycle = cycleRepo.findById(cycleId)
                 .orElseThrow(() -> new RuntimeException("Payroll cycle not found"));
-        if (cycle.getStatus() != PayrollStatus.DRAFT) {
-            throw new RuntimeException("Payroll already processed");
+        if (cycle.getStatus() == PayrollStatus.COMPLETED) {
+            throw new RuntimeException("Cannot modify completed payroll");
+        }
+        if (cycle.getStatus() == PayrollStatus.PROCESSING) {
+            throw new RuntimeException("Payroll is already being processed");
+        }
+        // Allow recreation of cancelled payrolls by resetting them to DRAFT
+        if (cycle.getStatus() == PayrollStatus.CANCELLED) {
+            System.out.println("INFO: Recreating cancelled payroll cycle " + cycleId);
+            cycle.setStatus(PayrollStatus.DRAFT);
+            // Clean up existing employee payrolls for this cycle
+            List<EmployeePayroll> existingPayrolls = payrollRepo.findByPayrollCycle(cycle);
+            for (EmployeePayroll existingPayroll : existingPayrolls) {
+                payrollRepo.delete(existingPayroll);
+            }
+            System.out.println("INFO: Cleaned up " + existingPayrolls.size() + " existing payroll records for cancelled cycle");
         }
         cycle.setStatus(PayrollStatus.PROCESSING);
         cycleRepo.save(cycle);
@@ -55,7 +69,14 @@ public class PayrollService {
             double esi = calculateDeduction("Employee State Insurance", gross, deductionRules);
             double pt = calculateDeduction("Professional Tax", gross, deductionRules);
             double annual = gross * 12;
-            double tax = calculateTax(annual);
+            
+            // Calculate Section 80C deductions (PF contribution)
+            double section80CDeductions = pf; // PF is eligible under 80C
+            // Cap 80C deductions at 150000
+            section80CDeductions = Math.min(section80CDeductions, 150000.0);
+            
+            double taxableAnnualIncome = annual - section80CDeductions;
+            double tax = calculateTax(taxableAnnualIncome);
             double tds = tax / 12;
             double deductions = pf + esi + pt + tds;
             
@@ -116,8 +137,8 @@ public class PayrollService {
                 System.out.println("INFO: Updating existing tax computation for employee " + emp.getEmployeeCode() + " for financial year " + financialYear);
                 taxComputation = existingTaxComputations.get(0);
                 taxComputation.setTotalIncome(gross * 12);
-                taxComputation.setTotalDeductions(pf + esi + pt);
-                taxComputation.setTaxableIncome(annual);
+                taxComputation.setTotalDeductions(pf + esi + pt + section80CDeductions);
+                taxComputation.setTaxableIncome(taxableAnnualIncome);
                 taxComputation.setTaxPayable(tax);
                 taxComputation.setCess(0.0);
                 taxComputation.setTotalTax(tax);
@@ -129,8 +150,8 @@ public class PayrollService {
                     .employee(emp)
                     .financialYear(financialYear)
                     .totalIncome(gross * 12)
-                    .totalDeductions(pf + esi + pt)
-                    .taxableIncome(annual)
+                    .totalDeductions(pf + esi + pt + section80CDeductions)
+                    .taxableIncome(taxableAnnualIncome)
                     .taxPayable(tax)
                     .cess(0.0) 
                     .totalTax(tax)
@@ -151,6 +172,10 @@ public class PayrollService {
             taxComputationRepo.save(taxComputation);
         }
         cycle.setStatus(PayrollStatus.COMPLETED);
+        
+        // Set processed information
+        cycle.setProcessedAt(java.time.LocalDateTime.now());
+        cycle.setProcessedBy("SYSTEM"); // In a real application, this would be the logged-in user
         
         // Calculate total amount and employee count for the payroll cycle
         List<EmployeePayroll> cyclePayrolls = payrollRepo.findByPayrollCycle(cycle);
@@ -405,5 +430,89 @@ public class PayrollService {
         }
         
         System.out.println("Completed updating payroll cycles with totals.");
+    }
+    
+    /**
+     * Cancel a payroll cycle
+     * Only DRAFT and PROCESSING payrolls can be cancelled
+     * COMPLETED payrolls cannot be cancelled
+     */
+    public void cancelPayroll(Long cycleId) {
+        PayrollCycle cycle = cycleRepo.findById(cycleId)
+                .orElseThrow(() -> new RuntimeException("Payroll cycle not found"));
+        
+        if (cycle.getStatus() == PayrollStatus.COMPLETED) {
+            throw new RuntimeException("Cannot cancel completed payroll");
+        }
+        
+        if (cycle.getStatus() == PayrollStatus.CANCELLED) {
+            throw new RuntimeException("Payroll is already cancelled");
+        }
+        
+        System.out.println("INFO: Cancelling payroll cycle " + cycleId + " with status " + cycle.getStatus());
+        
+        // Clean up any existing employee payrolls for this cycle
+        List<EmployeePayroll> existingPayrolls = payrollRepo.findByPayrollCycle(cycle);
+        for (EmployeePayroll existingPayroll : existingPayrolls) {
+            payrollRepo.delete(existingPayroll);
+        }
+        
+        cycle.setStatus(PayrollStatus.CANCELLED);
+        cycleRepo.save(cycle);
+        
+        System.out.println("INFO: Successfully cancelled payroll cycle " + cycleId + 
+            " and cleaned up " + existingPayrolls.size() + " payroll records");
+    }
+    
+    /**
+     * Mark an employee as left out for a specific payroll cycle
+     * Creates a minimal payroll record with LEFT_OUT status
+     */
+    public void markEmployeeLeftOut(Long employeeId, Long payrollCycleId, String reason) {
+        User employee = userRepo.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Employee not found with id " + employeeId));
+        
+        PayrollCycle cycle = cycleRepo.findById(payrollCycleId)
+                .orElseThrow(() -> new RuntimeException("Payroll cycle not found with id " + payrollCycleId));
+        
+        // Check if payroll record already exists
+        EmployeePayroll existingPayroll = payrollRepo.findByEmployeeAndPayrollCycle(employee, cycle).orElse(null);
+        EmployeePayroll payroll;
+        
+        if (existingPayroll != null) {
+            // Update existing record
+            payroll = existingPayroll;
+            System.out.println("INFO: Updating existing payroll record for employee " + employee.getEmployeeCode() + " to LEFT_OUT");
+        } else {
+            // Create new record
+            payroll = new EmployeePayroll();
+            payroll.setEmployee(employee);
+            payroll.setPayrollCycle(cycle);
+            System.out.println("INFO: Creating new LEFT_OUT payroll record for employee " + employee.getEmployeeCode());
+        }
+        
+        // Set minimal values for left out employee
+        payroll.setGross(0.0);
+        payroll.setTotalDeductions(0.0);
+        payroll.setNetSalary(0.0);
+        payroll.setBasic(0.0);
+        payroll.setHra(0.0);
+        payroll.setDa(0.0);
+        payroll.setSpecialAllowance(0.0);
+        payroll.setBonus(0.0);
+        payroll.setLta(0.0);
+        payroll.setStatus(PayoutStatus.LEFT_OUT);
+        payroll.setBankReference("LEFT_OUT_" + employee.getEmployeeCode() + "_" + cycle.getMonth() + "_" + cycle.getYear());
+        payroll.setPaidAt(java.time.LocalDateTime.now());
+        
+        payrollRepo.save(payroll);
+        
+        // Clean up any existing salary breakup records
+        salaryBreakupRepo.deleteByEmployeePayrollId(payroll.getId());
+        
+        // Create a single salary breakup record indicating left out status
+        createSalaryBreakup(salaryBreakupRepo, payroll, ComponentType.EARNING, "Left Out", 0.0);
+        
+        System.out.println("INFO: Employee " + employee.getEmployeeCode() + " marked as LEFT_OUT for payroll cycle " + cycle.getId() + " - Reason: " + reason);
     }
 }

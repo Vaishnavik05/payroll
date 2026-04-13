@@ -3,6 +3,7 @@ import CreateSalary from "./CreateSalary";
 import UpdateSalary from "./UpdateSalary";
 import ViewSalaryStructures from "./ViewSalaryStructures";
 import DeductionRuleForm from "./DeductionRuleForm";
+import CreateUser from "./CreateUser";
 import { getUsers, getSalaryByEmployee } from "../services/api";
 import "./HRDashboard.css";
 
@@ -192,6 +193,8 @@ export default function HRDashboard() {
 
   const renderForm = () => {
     switch(activeForm) {
+      case "createUser":
+        return <CreateUser />;
       case "create":
         return <CreateSalary />;
       case "update":
@@ -500,6 +503,15 @@ export default function HRDashboard() {
       <h1>HR Manager Dashboard</h1>
       
       <div className="nav-buttons">
+        <button 
+          className={`nav-btn ${activeForm === "createUser" ? "active" : ""}`}
+          onClick={() => {
+            setActiveForm(activeForm === "createUser" ? "" : "createUser");
+            setViewMode("");
+          }}
+        >
+          Add Employee
+        </button>
         <button 
           className={`nav-btn ${activeForm === "create" ? "active" : ""}`}
           onClick={() => {

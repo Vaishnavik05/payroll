@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { processPayroll, completePayroll, getPayrolls } from "../services/api";
+import { processPayroll, completePayroll, getPayrolls, cancelPayroll } from "../services/api";
 import API from "../services/api";
 import "./ProcessPayroll.css";
 
@@ -101,6 +101,29 @@ export default function ProcessPayroll() {
     }
   };
 
+  const handleCancel = async () => {
+    if (!id) {
+      setError("Please enter a payroll ID");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      await cancelPayroll(id);
+      setSuccess("Payroll cancelled successfully!");
+      setId("");
+      // Refresh payrolls to show updated status
+      fetchPayrolls();
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to cancel payroll");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="process-payroll-container">
       <div className="form-header">
@@ -129,6 +152,8 @@ export default function ProcessPayroll() {
             {payrolls.map(payroll => (
               <option key={payroll.id} value={payroll.id}>
                 ID: {payroll.id} - {payroll.month || 'Unknown'}/{payroll.year || 'Unknown'} - {payroll.status || 'Unknown Status'}
+                {payroll.processedAt && ` - Processed: ${new Date(payroll.processedAt).toLocaleDateString()}`}
+                {payroll.processedBy && ` by ${payroll.processedBy}`}
               </option>
             ))}
           </select>
@@ -164,6 +189,14 @@ export default function ProcessPayroll() {
             disabled={loading}
           >
             {loading ? "Completing..." : "Complete Payroll"}
+          </button>
+          <button 
+            type="button" 
+            className="cancel-btn" 
+            onClick={handleCancel}
+            disabled={loading}
+          >
+            {loading ? "Cancelling..." : "Cancel Payroll"}
           </button>
         </div>
       </div>

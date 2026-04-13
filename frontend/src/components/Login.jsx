@@ -30,13 +30,43 @@ export default function Login() {
 
     setIsLoading(true);
     
-    setTimeout(() => {
-      if (role === "ADMIN") navigate("/admin");
-      else if (role === "HR_MANAGER") navigate("/hr");
-      else if (role === "FINANCE") navigate("/finance");
-      else navigate("/employee");
+    try {
+      const response = await fetch("http://localhost:8080/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          employeeCode: employeecode.trim(),
+          role: role
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Store user info in localStorage or context
+        localStorage.setItem("user", JSON.stringify(data.user));
+        
+        // Navigate based on role
+        if (role === "ADMIN") navigate("/admin");
+        else if (role === "HR_MANAGER") navigate("/hr");
+        else if (role === "FINANCE") navigate("/finance");
+        else navigate("/employee");
+      } else {
+        setError(data.message || "Login failed");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+        setError("Backend server not running. Please start the Spring Boot application on port 8080.");
+      } else {
+        setError("Network error. Please check your connection and try again.");
+      }
+    } finally {
       setIsLoading(false);
-    }, 500);
+    }
   };
 
   return (
@@ -66,7 +96,7 @@ export default function Login() {
         </div>
         
         <div className="form-group">
-          <label>Employee Code (Password)</label>
+          <label>Password(Employee Code)</label>
           <input 
             type="password" 
             value={employeecode} 

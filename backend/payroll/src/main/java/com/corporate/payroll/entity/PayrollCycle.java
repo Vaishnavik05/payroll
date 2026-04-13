@@ -18,6 +18,8 @@ public class PayrollCycle {
     @Enumerated(EnumType.STRING)
     private PayrollStatus status = PayrollStatus.DRAFT;
     private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime processedAt;
+    private String processedBy;
     private Double totalAmount;
     private Integer totalEmployees;
 }

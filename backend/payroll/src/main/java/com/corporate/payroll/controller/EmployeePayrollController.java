@@ -7,12 +7,16 @@ import com.corporate.payroll.entity.SalaryBreakup;
 import com.corporate.payroll.repository.EmployeePayrollRepository;
 import com.corporate.payroll.repository.SalaryBreakupRepository;
 import com.corporate.payroll.repository.PayrollCycleRepository;
+import com.corporate.payroll.service.PdfGenerationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +27,7 @@ public class EmployeePayrollController {
     private final EmployeePayrollRepository employeePayrollRepository;
     private final SalaryBreakupRepository salaryBreakupRepository;
     private final PayrollCycleRepository payrollCycleRepository;
+    private final PdfGenerationService pdfGenerationService;
 
     @GetMapping("/{id}/breakup")
     public ResponseEntity<List<SalaryBreakupDTO>> getSalaryBreakup(@PathVariable Long id) {
@@ -106,5 +111,30 @@ public class EmployeePayrollController {
         dto.setBankReference(payroll.getBankReference());
         dto.setPaidAt(payroll.getPaidAt());
         return dto;
+    }
+    
+    @GetMapping("/{id}/download-pdf")
+    public ResponseEntity<byte[]> downloadPayslipPdf(@PathVariable Long id) {
+        EmployeePayroll payroll = employeePayrollRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "EmployeePayroll not found"));
+        
+        try {
+            byte[] pdfBytes = pdfGenerationService.generatePayslipPdf(payroll);
+            
+            String filename = "Payslip_" + payroll.getEmployee().getEmployeeCode() + "_" + 
+                payroll.getPayrollCycle().getMonth() + "_" + payroll.getPayrollCycle().getYear() + ".pdf";
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("attachment", filename);
+            headers.setContentLength(pdfBytes.length);
+            
+            return ResponseEntity.ok()
+                .headers(headers)
+                .body(pdfBytes);
+                
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to generate PDF: " + e.getMessage());
+        }
     }
 }

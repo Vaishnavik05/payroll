@@ -1,7 +1,7 @@
 .payroll-list-container {
-  max-width: 600px;
+  max-width: 1200px;
   margin: 40px auto;
-  padding: 24px 0;
+  padding: 24px 20px;
   background: #f7f8fa;
   border-radius: 12px;
 }
@@ -22,12 +22,18 @@
   padding-left: 12px;
 }
 
+.payroll-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
 .payroll-card {
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   padding: 18px 20px;
-  margin-bottom: 18px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -93,10 +99,21 @@
   border: 1px solid #d1d5db;
 }
 
+@media (max-width: 900px) {
+  .payroll-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+}
+
 @media (max-width: 700px) {
   .payroll-list-container {
     max-width: 98vw;
-    padding: 10px 0;
+    padding: 10px 10px;
+  }
+  .payroll-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
   }
   .payroll-card {
     flex-direction: column;

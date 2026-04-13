@@ -1,9 +1,10 @@
 .payroll-workflow {
-  max-width: 800px;
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
   padding: 20px;
   background: #f8f9fa;
   min-height: 100vh;
+  box-sizing: border-box;
 }
 
 .workflow-header {
@@ -125,6 +126,8 @@
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .workflow-step h3 {
@@ -475,6 +478,16 @@
   padding: 40px;
   color: #6b7280;
   font-size: 16px;
+}
+
+@media (min-width: 1200px) {
+  .payroll-workflow {
+    padding: 30px;
+  }
+  
+  .workflow-content {
+    padding: 30px;
+  }
 }
 
 @media (max-width: 768px) {

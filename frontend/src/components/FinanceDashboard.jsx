@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import CreatePayroll from "./CreatePayroll";
 import ProcessPayroll from "./ProcessPayroll";
 import PayrollWorkflow from "./PayrollWorkflow";
-import { getPayrolls, getDashboardStats, updatePayrollTotals, getEmployeePayrollsByPayrollCycle } from "../services/api";
+import { getPayrolls, getDashboardStats, updatePayrollTotals, getEmployeePayrollsByPayrollCycle, processCurrentYearTaxComputations, getCurrentYearTaxSummary, cleanupDuplicatePayslips, testTaxService } from "../services/api";
 import "./FinanceDashboard.css";
 
 export default function FinanceDashboard() {
@@ -38,16 +38,19 @@ export default function FinanceDashboard() {
       console.log("Payroll cycles API response:", response);
       const payrolls = response.data || [];
       
-      // Calculate statistics from payroll cycles
-      const totalPayrolls = Math.round(payrolls.length || 0);
-      const processedPayrolls = Math.round(payrolls.filter(p => p.status === 'COMPLETED').length || 0);
-      const draftPayrolls = Math.round(payrolls.filter(p => p.status === 'DRAFT').length || 0);
-      const processingPayrolls = Math.round(payrolls.filter(p => p.status === 'PROCESSING').length || 0);
+      // Fetch actual payroll amounts from database
+      const payrollsWithAmounts = await fetchPayrollAmounts(payrolls);
       
-      // Calculate total amount from payroll cycles
-      const totalAmount = payrolls.reduce((sum, p) => {
-        // Try to get totalAmount from different possible fields
-        const amount = p.totalAmount || p.grossAmount || p.amount || p.gross || p.netSalary || 0;
+      // Calculate statistics from payroll cycles
+      const totalPayrolls = Math.round(payrollsWithAmounts.length || 0);
+      const processedPayrolls = Math.round(payrollsWithAmounts.filter(p => p.status === 'COMPLETED').length || 0);
+      const draftPayrolls = Math.round(payrollsWithAmounts.filter(p => p.status === 'DRAFT').length || 0);
+      const processingPayrolls = Math.round(payrollsWithAmounts.filter(p => p.status === 'PROCESSING').length || 0);
+      const cancelledPayrolls = Math.round(payrollsWithAmounts.filter(p => p.status === 'CANCELLED').length || 0);
+      
+      // Calculate total amount from payroll cycles with actual amounts
+      const totalAmount = payrollsWithAmounts.reduce((sum, p) => {
+        const amount = p.totalAmount || 0;
         const parsedAmount = typeof amount === 'number' ? amount : parseFloat(amount) || 0;
         return sum + Math.round(parsedAmount * 100) / 100; // Round to 2 decimal places
       }, 0);
@@ -57,11 +60,18 @@ export default function FinanceDashboard() {
         processedPayrolls: processedPayrolls,
         draftPayrolls: draftPayrolls,
         processingPayrolls: processingPayrolls,
+        cancelledPayrolls: cancelledPayrolls,
         totalAmount: Math.round(totalAmount)
       };
       
       setStats(newStats);
       console.log("Finance stats updated:", newStats);
+      
+      // Update filtered payrolls with amounts if they exist
+      if (filteredPayrolls.length > 0) {
+        const updatedFilteredPayrolls = await fetchPayrollAmounts(filteredPayrolls);
+        setFilteredPayrolls(updatedFilteredPayrolls);
+      }
       
       // If no payroll cycles data, try dashboard API as fallback
       if (totalPayrolls === 0) {
@@ -118,11 +128,17 @@ export default function FinanceDashboard() {
         case 'processing':
           filtered = allPayrolls.filter(p => p.status === 'PROCESSING');
           break;
+        case 'cancelled':
+          filtered = allPayrolls.filter(p => p.status === 'CANCELLED');
+          break;
         default:
           filtered = allPayrolls;
       }
       
-      setFilteredPayrolls(filtered);
+      // Fetch actual payroll amounts for filtered payrolls
+      const filteredWithAmounts = await fetchPayrollAmounts(filtered);
+      
+      setFilteredPayrolls(filteredWithAmounts);
       setFilterType(type);
       setShowFilteredView(true);
       setActiveForm("");
@@ -137,6 +153,131 @@ export default function FinanceDashboard() {
     setShowFilteredView(false);
     setFilteredPayrolls([]);
     setFilterType("");
+  };
+
+  const fetchPayrollAmounts = async (payrollCycles) => {
+    try {
+      const payrollCyclesWithAmounts = await Promise.all(
+        payrollCycles.map(async (cycle) => {
+          try {
+            // Fetch employee payrolls for this cycle
+            const response = await getEmployeePayrollsByPayrollCycle(cycle.id);
+            const employeePayrolls = response.data || [];
+            
+            // Calculate total amount from employee payrolls
+            const totalAmount = employeePayrolls.reduce((sum, emp) => {
+              return sum + (emp.netSalary || emp.gross || 0);
+            }, 0);
+            
+            // Update the cycle with actual amounts
+            return {
+              ...cycle,
+              totalAmount: totalAmount,
+              totalEmployees: employeePayrolls.length
+            };
+          } catch (err) {
+            console.error(`Error fetching amounts for cycle ${cycle.id}:`, err);
+            return {
+              ...cycle,
+              totalAmount: cycle.totalAmount || 0,
+              totalEmployees: cycle.totalEmployees || 0
+            };
+          }
+        })
+      );
+      
+      return payrollCyclesWithAmounts;
+    } catch (err) {
+      console.error("Error fetching payroll amounts:", err);
+      return payrollCycles;
+    }
+  };
+
+  const handleProcessTaxComputations = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      console.log("Starting tax computation processing...");
+      
+      // Test tax service first
+      console.log("Testing tax service...");
+      const testResponse = await testTaxService();
+      console.log("Tax service test response:", testResponse);
+      
+      if (!testResponse.data.success) {
+        throw new Error("Tax service test failed: " + testResponse.data.message);
+      }
+      
+      console.log("Tax service is working, proceeding with tax computation...");
+      
+      // Process tax computations for current financial year
+      const processResponse = await processCurrentYearTaxComputations();
+      console.log("Tax processing response:", processResponse);
+      
+      if (!processResponse || !processResponse.data) {
+        throw new Error("No response from tax processing API");
+      }
+      
+      if (processResponse.data.success) {
+        // Get updated tax summary
+        const summaryResponse = await getCurrentYearTaxSummary();
+        console.log("Tax summary response:", summaryResponse);
+        
+        // Show success message
+        const totalTax = summaryResponse.data?.totalTaxCollected || 0;
+        const totalEmployees = summaryResponse.data?.totalEmployees || 0;
+        
+        alert(`Tax computations processed successfully!\nTotal Tax Collected: Rs. ${totalTax.toLocaleString()}\nTotal Employees: ${totalEmployees}`);
+        
+        // Refresh stats to update dashboard
+        await fetchFinanceStats();
+      } else {
+        const errorMsg = processResponse.data.message || "Tax processing failed";
+        setError("Tax processing failed: " + errorMsg);
+        alert("Tax processing failed: " + errorMsg);
+      }
+    } catch (err) {
+      console.error("Error processing tax computations:", err);
+      let errorMessage = "Failed to process tax computations";
+      
+      if (err.name === 'TypeError' && err.message.includes('Failed to fetch')) {
+        errorMessage = "Backend server not running. Please start the Spring Boot application on port 8080.";
+      } else if (err.response) {
+        errorMessage = "Server error: " + (err.response.data?.message || err.message);
+      } else if (err.request) {
+        errorMessage = "Network error. Please check your connection.";
+      } else {
+        errorMessage = "Error: " + err.message;
+      }
+      
+      setError(errorMessage);
+      alert(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCleanupDuplicates = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      console.log("Starting cleanup of duplicate payslips...");
+      
+      const response = await cleanupDuplicatePayslips();
+      console.log("Cleanup response:", response.data);
+      
+      alert("Duplicate payslips cleaned up successfully!");
+      
+      // Refresh stats to update dashboard
+      fetchFinanceStats();
+      
+    } catch (err) {
+      console.error("Error cleaning up duplicate payslips:", err);
+      setError("Failed to cleanup duplicate payslips: " + (err.response?.data?.message || err.message));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleUpdateTotals = async () => {
@@ -607,6 +748,27 @@ tax calculations, deductions, and other payroll information.
                       <span>{payroll.totalEmployees || 0} Employees</span>
                     </div>
                   </div>
+                  
+                  {payroll.processedAt && (
+                    <div className="processed-info">
+                      <div className="processed-item">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <span>Processed: {new Date(payroll.processedAt).toLocaleDateString()}</span>
+                      </div>
+                      {payroll.processedBy && (
+                        <div className="processed-item">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                          </svg>
+                          <span>By: {payroll.processedBy}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -709,6 +871,20 @@ tax calculations, deductions, and other payroll information.
             </div>
           </div>
           
+          <div className="stat-card clickable" onClick={() => handleStatCardClick('cancelled')}>
+            <div className="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="15" y1="9" x2="9" y2="15"/>
+                <line x1="9" y1="9" x2="15" y2="15"/>
+              </svg>
+            </div>
+            <div className="stat-content">
+              <h3>{formatNumber(stats.cancelledPayrolls)}</h3>
+              <p>Cancelled</p>
+            </div>
+          </div>
+          
           <div className="stat-card clickable" onClick={() => handleStatCardClick('total')}>
             <div className="stat-icon">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -773,6 +949,29 @@ tax calculations, deductions, and other payroll information.
           onClick={() => setActiveForm(activeForm === "workflow" ? "" : "workflow")}
         >
           Payroll Workflow
+        </button>
+        <button 
+          className="nav-btn tax-btn"
+          onClick={handleProcessTaxComputations}
+          disabled={loading}
+          title={loading ? "Processing tax computations..." : "Process tax computations for current financial year"}
+        >
+          {loading ? (
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span 
+                style={{
+                  display: 'inline-block',
+                  width: '12px',
+                  height: '12px',
+                  border: '2px solid #ffffff',
+                  borderTop: '2px solid transparent',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite'
+                }}
+              />
+              Processing Tax...
+            </span>
+          ) : 'Process Tax'}
         </button>
       </div>
 

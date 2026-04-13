@@ -8,10 +8,12 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import java.math.BigDecimal;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/payroll")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 public class PayrollController {
     
     private final PayrollService payrollService;
@@ -62,6 +64,40 @@ public class PayrollController {
             return ResponseEntity.ok("Payroll cycles totals updated successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Failed to update payroll totals: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/cancel/{cycleId}")
+    public ResponseEntity<String> cancelPayroll(@PathVariable Long cycleId) {
+        try {
+            payrollService.cancelPayroll(cycleId);
+            return ResponseEntity.ok("Payroll cycle cancelled successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to cancel payroll: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/mark-left-out")
+    public ResponseEntity<String> markEmployeeLeftOut(@RequestBody Map<String, Object> payload) {
+        try {
+            Long employeeId = Long.valueOf(payload.get("employeeId").toString());
+            Long payrollCycleId = Long.valueOf(payload.get("payrollCycleId").toString());
+            String reason = payload.get("reason") != null ? payload.get("reason").toString() : "Left out by finance";
+            
+            payrollService.markEmployeeLeftOut(employeeId, payrollCycleId, reason);
+            return ResponseEntity.ok("Employee marked as left out successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to mark employee as left out: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/cleanup-duplicates")
+    public ResponseEntity<String> cleanupDuplicatePayslips() {
+        try {
+            payrollService.cleanupDuplicatePayslips();
+            return ResponseEntity.ok("Duplicate payslips cleaned up successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to cleanup duplicate payslips: " + e.getMessage());
         }
     }
 

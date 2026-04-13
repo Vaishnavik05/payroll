@@ -16,7 +16,13 @@ export default function CreateUser() {
   const [success, setSuccess] = useState("");
 
   const handleBack = () => {
-    window.location.href = '/admin';
+    // Check if we're coming from HR dashboard or Admin dashboard
+    const currentPath = window.location.pathname;
+    if (currentPath.includes('/hr')) {
+      window.location.href = '/hr';
+    } else {
+      window.location.href = '/admin';
+    }
   };
 
   const handleSubmit = async (e) => {
