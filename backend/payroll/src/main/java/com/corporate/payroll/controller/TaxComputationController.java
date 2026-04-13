@@ -4,7 +4,9 @@ import com.corporate.payroll.entity.TaxComputation;
 import com.corporate.payroll.entity.User;
 import com.corporate.payroll.repository.TaxComputationRepository;
 import com.corporate.payroll.repository.UserRepository;
+import com.corporate.payroll.service.TaxComputationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import java.util.List;
@@ -13,9 +15,11 @@ import java.util.List;
 @RequestMapping("/api/tax-computations")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:3000")
+@Slf4j
 public class TaxComputationController {
     private final TaxComputationRepository taxComputationRepository;
     private final UserRepository userRepository;
+    private final TaxComputationService taxComputationService;
 
     @GetMapping
     public ResponseEntity<List<TaxComputation>> getAllTaxComputations() {
@@ -38,7 +42,7 @@ public class TaxComputationController {
 
     @GetMapping("/financial-year/{financialYear}")
     public ResponseEntity<List<TaxComputation>> getTaxComputationsByFinancialYear(@PathVariable String financialYear) {
-        List<TaxComputation> computations = taxComputationRepository.findByFinancialYear(financialYear);
+        List<TaxComputation> computations = taxComputationService.getTaxComputationsByFinancialYear(financialYear);
         return ResponseEntity.ok(computations);
     }
 
@@ -58,6 +62,20 @@ public class TaxComputationController {
             ResponseEntity.ok(computations.get(0));
     }
 
+    @GetMapping("/employee-id/{employeeId}")
+    public ResponseEntity<List<TaxComputation>> getTaxComputationsByEmployeeId(@PathVariable Long employeeId) {
+        List<TaxComputation> computations = taxComputationRepository.findByEmployeeIdOrderByCreatedAtDesc(employeeId);
+        return ResponseEntity.ok(computations);
+    }
+
+    @GetMapping("/employee-id/{employeeId}/latest")
+    public ResponseEntity<TaxComputation> getLatestTaxComputationByEmployeeId(@PathVariable Long employeeId) {
+        List<TaxComputation> computations = taxComputationRepository.findByEmployeeIdOrderByCreatedAtDesc(employeeId);
+        return computations.isEmpty() ? 
+            ResponseEntity.notFound().build() : 
+            ResponseEntity.ok(computations.get(0));
+    }
+
     @GetMapping("/summary/financial-year/{financialYear}")
     public ResponseEntity<Object> getTaxSummaryByFinancialYear(@PathVariable String financialYear) {
         List<TaxComputation> computations = taxComputationRepository.findAll().stream()
@@ -65,9 +83,9 @@ public class TaxComputationController {
                 .toList();
         
         double totalEmployees = computations.size();
-        double totalTax = computations.stream().mapToDouble(TaxComputation::getTotalTax).sum();
-        double totalTDS = computations.stream().mapToDouble(TaxComputation::getTaxDeducted).sum();
-        double totalIncome = computations.stream().mapToDouble(TaxComputation::getTotalIncome).sum();
+        double totalTax = computations.stream().mapToDouble(tc -> tc.getTotalTax() != null ? tc.getTotalTax() : 0.0).sum();
+        double totalTDS = computations.stream().mapToDouble(tc -> tc.getTaxDeducted() != null ? tc.getTaxDeducted() : 0.0).sum();
+        double totalIncome = computations.stream().mapToDouble(tc -> tc.getTotalIncome() != null ? tc.getTotalIncome() : 0.0).sum();
         
         var summary = java.util.Map.of(
                 "financialYear", financialYear,
@@ -104,6 +122,7 @@ public class TaxComputationController {
             return ResponseEntity.ok(savedComputation);
             
         } catch (Exception e) {
+            log.error("Error creating tax computation: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
         }
     }
@@ -129,6 +148,7 @@ public class TaxComputationController {
             return ResponseEntity.ok(savedComputation);
             
         } catch (Exception e) {
+            log.error("Error creating tax computation: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
         }
     }

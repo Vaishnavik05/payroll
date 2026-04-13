@@ -203,22 +203,6 @@ export default function ViewTaxComputation({ employeeCode: propEmployeeCode = ''
 
 return (
   <div className="tax-computation-container">
-    {/* Quick Action Buttons */}
-    <div className="quick-actions">
-      <button className="action-btn payroll-btn" onClick={() => window.location.href = '/payroll'}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M17 21v-2a4 4 0 0 0-4-4 4m0 0a4 4 0 0 0 4 4v2m-1 1a1 1 0 0 0 1 1v2m0 0a1 1 0 0 1 1"/>
-        </svg>
-        View Payroll
-      </button>
-      <button className="action-btn tax-btn" onClick={() => window.location.href = '/tax'}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M9 14H4m0 0a2 2 0 0 0 2v10a2 2 0 0 0 2h16a2 2 0 0 0 2M9 14l7 7m0 0a2 2 0 0 0 2v10a2 2 0 0 0 2"/>
-        </svg>
-        Tax Information
-      </button>
-    </div>
-
     {/* Header */}
     <div className="form-header">
       <h3>Tax Computation Details</h3>

@@ -4,6 +4,7 @@ import com.corporate.payroll.entity.TaxComputation;
 import com.corporate.payroll.entity.User;
 import com.corporate.payroll.repository.TaxComputationRepository;
 import com.corporate.payroll.repository.UserRepository;
+import com.corporate.payroll.enums.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,19 +37,20 @@ public class TaxComputationService {
 
             log.debug("Found employee: {} (ID: {})", employeeCode, employee.getId());
 
-            // Check if tax computation already exists
-            List<TaxComputation> existingComputations = null;
+            List<TaxComputation> existingComputations;
             try {
                 existingComputations = taxComputationRepository
                         .findByEmployeeEmployeeCodeAndFinancialYearOrderByCreatedAtDesc(employeeCode, financialYear);
+                log.debug("Found {} existing computations for employee {} in year {}", 
+                        existingComputations.size(), employeeCode, financialYear);
             } catch (Exception e) {
                 log.warn("Error checking existing computations for {}: {}", employeeCode, e.getMessage());
-                existingComputations = null;
+                existingComputations = List.of();
             }
 
             TaxComputation taxComputation;
 
-            if (existingComputations != null && !existingComputations.isEmpty()) {
+            if (!existingComputations.isEmpty()) {
                 // Update existing computation
                 taxComputation = existingComputations.get(0);
                 log.info("Updating existing tax computation for employee {} for financial year {} (ID: {})", 
@@ -133,7 +135,7 @@ public class TaxComputationService {
                     double totalDeductions = calculateStandardDeductions(annualIncome);
                     double taxableIncome = annualIncome - totalDeductions;
                     double taxPayable = calculateTax(taxableIncome);
-                    double cess = 0.0; // No cess for now
+                    double cess = calculateCess(taxPayable);
                     double totalTax = taxPayable + cess;
                     double monthlyTds = totalTax / 12;
 
@@ -191,38 +193,47 @@ public class TaxComputationService {
 
     private double calculateAnnualIncome(User employee) {
         try {
-            // Try to get actual salary from salary structure
-            // For now, return a reasonable default based on employee role
             if (employee.getRole() != null) {
-                switch (employee.getRole().toLowerCase()) {
-                    case "manager":
-                        return 600000.0; // 50,000 per month
-                    case "developer":
-                        return 480000.0; // 40,000 per month
-                    case "employee":
+                switch (employee.getRole()) {
+                    case ADMIN:
+                        return 720000.0;
+                    case HR_MANAGER:
+                        return 600000.0;
+                    case FINANCE:
+                        return 540000.0;
+                    case EMPLOYEE:
                     default:
-                        return 360000.0; // 30,000 per month
+                        return 360000.0;
                 }
             }
-            return 360000.0; // Default fallback
+            return 360000.0;
         } catch (Exception e) {
             log.warn("Error calculating annual income for employee {}: {}", employee.getEmployeeCode(), e.getMessage());
-            return 360000.0; // Safe fallback
+            return 360000.0;
         }
     }
 
     private double calculateStandardDeductions(double annualIncome) {
-        // Standard deductions under Section 80C, etc.
-        // Simplified calculation
-        return Math.min(150000.0, annualIncome * 0.1); // Max 1.5L under 80C
+        double standardDeduction = 75000.0;
+        
+        double section80CDeduction = Math.min(150000.0, annualIncome * 0.1);
+        
+        double totalDeductions = standardDeduction + section80CDeduction;
+        return Math.min(totalDeductions, annualIncome);
     }
 
     private double calculateTax(double taxableIncome) {
-        // Indian tax slabs (simplified)
-        if (taxableIncome <= 250000) return 0;
-        else if (taxableIncome <= 500000) return (taxableIncome - 250000) * 0.05;
-        else if (taxableIncome <= 1000000) return 12500 + (taxableIncome - 500000) * 0.2;
-        else return 112500 + (taxableIncome - 1000000) * 0.3;
+        if (taxableIncome <= 0) return 0;
+        if (taxableIncome <= 300000) return 0;
+        else if (taxableIncome <= 700000) return (taxableIncome - 300000) * 0.05;
+        else if (taxableIncome <= 1000000) return 20000 + (taxableIncome - 700000) * 0.1;
+        else if (taxableIncome <= 1200000) return 50000 + (taxableIncome - 1000000) * 0.15;
+        else if (taxableIncome <= 1500000) return 80000 + (taxableIncome - 1200000) * 0.2;
+        else return 140000 + (taxableIncome - 1500000) * 0.3;
+    }
+
+    private double calculateCess(double taxPayable) {
+        return taxPayable * 0.04;
     }
 
     public List<TaxComputation> getAllTaxComputations() {

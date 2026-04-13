@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import CreateSalary from "./CreateSalary";
 import UpdateSalary from "./UpdateSalary";
 import ViewSalaryStructures from "./ViewSalaryStructures";
@@ -8,8 +9,9 @@ import { getUsers, getSalaryByEmployee } from "../services/api";
 import "./HRDashboard.css";
 
 export default function HRDashboard() {
+  const navigate = useNavigate();
   const [activeForm, setActiveForm] = useState("");
-  const [viewMode, setViewMode] = useState(""); // employees, departments, salaries, pending
+  const [viewMode, setViewMode] = useState("");
   const [employees, setEmployees] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [salaryStructures, setSalaryStructures] = useState([]);

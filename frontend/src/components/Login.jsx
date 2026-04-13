@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
@@ -10,6 +10,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  
   const handleLogin = async () => {
     setError("");
     
@@ -46,10 +47,7 @@ export default function Login() {
       const data = await response.json();
 
       if (data.success) {
-        // Store user info in localStorage or context
-        localStorage.setItem("user", JSON.stringify(data.user));
-        
-        // Navigate based on role
+        // Navigate based on role without storing tokens
         if (role === "ADMIN") navigate("/admin");
         else if (role === "HR_MANAGER") navigate("/hr");
         else if (role === "FINANCE") navigate("/finance");
@@ -96,7 +94,7 @@ export default function Login() {
         </div>
         
         <div className="form-group">
-          <label>Password(Employee Code)</label>
+          <label>Employee Code</label>
           <input 
             type="password" 
             value={employeecode} 

@@ -21,6 +21,9 @@ public interface TaxComputationRepository extends JpaRepository<TaxComputation, 
     @Query("SELECT t FROM TaxComputation t WHERE t.employee.employeeCode = :employeeCode ORDER BY t.id DESC")
     List<TaxComputation> findByEmployeeEmployeeCodeOrderByCreatedAtDesc(String employeeCode);
     
+    @Query("SELECT t FROM TaxComputation t WHERE t.employee.employeeCode = :employeeCode")
+    List<TaxComputation> findByEmployeeEmployeeCode(String employeeCode);
+    
     @Query("SELECT t FROM TaxComputation t WHERE t.employee.employeeCode = :employeeCode AND t.financialYear = :financialYear ORDER BY t.id DESC")
     List<TaxComputation> findByEmployeeEmployeeCodeAndFinancialYearOrderByCreatedAtDesc(String employeeCode, String financialYear);
 }

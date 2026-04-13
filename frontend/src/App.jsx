@@ -5,6 +5,7 @@ import HRDashboard from "./components/HRDashboard";
 import FinanceDashboard from "./components/FinanceDashboard";
 import EmployeeDashboard from "./components/EmployeeDashboard";
 import ErrorBoundary from "./components/ErrorBoundary";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (

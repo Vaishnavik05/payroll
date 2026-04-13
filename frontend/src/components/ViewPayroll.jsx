@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getEmployeePayroll, getUsers, getUserByEmployeeCode, getSalaryBreakupByEmployeePayroll, downloadPayslipPdf } from "../services/api";
+import { getEmployeePayrollByCode, getUsers, getUserByEmployeeCode, getSalaryBreakupByEmployeePayroll, downloadPayslipPdf } from "../services/api";
 
 export default function ViewPayroll({ employeeCode: propEmployeeCode = '', employeeId: propEmployeeId = '' }) {
   const [id, setId] = useState(propEmployeeCode);
@@ -78,8 +78,10 @@ export default function ViewPayroll({ employeeCode: propEmployeeCode = '', emplo
 
     try {
       const empCode = id.trim().toUpperCase();
-      const response = await getEmployeePayroll(empCode);
+      console.log("Fetching payroll for employee code:", empCode);
+      const response = await getEmployeePayrollByCode(empCode);
       const payrollData = response.data || [];
+      console.log("Payroll data received:", payrollData);
       setData(payrollData);
       
       // Fetch salary breakups for each payroll record
@@ -97,7 +99,7 @@ export default function ViewPayroll({ employeeCode: propEmployeeCode = '', emplo
       setSalaryBreakups(breakupsMap);
     } catch (err) {
       console.error("Error fetching payroll data:", err);
-      setError(err.response?.data?.message || "Failed to fetch payroll data");
+      setError("Failed to fetch payroll data. Please check the employee code and try again.");
     } finally {
       setLoading(false);
     }
@@ -108,16 +110,18 @@ export default function ViewPayroll({ employeeCode: propEmployeeCode = '', emplo
   }, []);
 
   useEffect(() => {
-    if (propEmployeeCode || propEmployeeId) {
+    if (propEmployeeCode) {
       const autoLoadPayrollData = async () => {
         setLoading(true);
         setError("");
         
         try {
           const empCode = propEmployeeCode.trim().toUpperCase();
-          const response = await getEmployeePayroll(empCode);
+          console.log("Auto-loading payroll for employee code:", empCode);
+          const response = await getEmployeePayrollByCode(empCode);
           
           const payrollData = response.data || [];
+          console.log("Auto-loaded payroll data:", payrollData);
           setData(payrollData);
           
           // Fetch salary breakups for each payroll record
@@ -135,8 +139,7 @@ export default function ViewPayroll({ employeeCode: propEmployeeCode = '', emplo
           setSalaryBreakups(breakupsMap);
         } catch (err) {
           console.error('Auto-load Payroll API Error:', err);
-          setData(null);
-          setSalaryBreakups({});
+          setError('Failed to load payroll data for employee code: ' + propEmployeeCode);
         } finally {
           setLoading(false);
         }
@@ -144,7 +147,7 @@ export default function ViewPayroll({ employeeCode: propEmployeeCode = '', emplo
       
       autoLoadPayrollData();
     }
-  }, [propEmployeeCode, propEmployeeId]);
+  }, [propEmployeeCode]);
 
   return (
     <div className="view-payroll-container">

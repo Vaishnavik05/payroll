@@ -19,7 +19,6 @@ public class DashboardController {
     private final PayrollCycleRepository payrollCycleRepository;
     private final TaxComputationRepository taxComputationRepository;
     private final SalaryStructureRepository salaryStructureRepository;
-    
     @GetMapping("/stats")
     public ResponseEntity<Map<String, Object>> getDashboardStats() {
         Map<String, Object> stats = new HashMap<>();

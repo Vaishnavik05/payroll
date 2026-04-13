@@ -6,7 +6,7 @@ const API = axios.create({
   baseURL: "http://localhost:8080/api",
 });
 
-// Add response interceptor for error handling
+// Add response interceptor for error handling (without authentication redirects)
 API.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -36,6 +36,9 @@ export const getPayrollSummary = () => API.get("/employee-payrolls/summary");
 
 export const getEmployeePayroll = (id) =>
   API.get(`/payslips/employee/${id}`);
+
+export const getEmployeePayrollByCode = (employeeCode) =>
+  API.get(`/payslips/employee-code/${employeeCode}`);
 
 export const getTax = (id) => API.get(`/tax/employee/${id}`);
 

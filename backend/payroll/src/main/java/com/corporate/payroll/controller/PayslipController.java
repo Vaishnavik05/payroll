@@ -14,16 +14,39 @@ import java.util.Optional;
 import java.util.List;
 import com.corporate.payroll.entity.EmployeePayroll;
 import com.corporate.payroll.repository.EmployeePayrollRepository;
+import com.corporate.payroll.repository.UserRepository;
 @RestController
 @RequestMapping("/api/payslips")
 @RequiredArgsConstructor
 public class PayslipController {
     private final EmployeePayrollRepository employeePayrollRepository;
+    private final UserRepository userRepository;
     @GetMapping("/employee/{employeeId}")
     public ResponseEntity<List<EmployeePayroll>> getPayslipsForEmployee(@PathVariable Long employeeId) {
         List<EmployeePayroll> payrolls = employeePayrollRepository.findByEmployee_Id(employeeId);
         if (payrolls.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No payslips found for employeeId " + employeeId);
+        }
+        return ResponseEntity.ok(payrolls);
+    }
+
+    @GetMapping("/employee-code/{employeeCode}")
+    public ResponseEntity<List<EmployeePayroll>> getPayslipsForEmployeeByCode(@PathVariable String employeeCode) {
+        // Find employee by code first
+        if (!userRepository.existsByEmployeeCode(employeeCode)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Employee not found with code: " + employeeCode);
+        }
+        
+        // Get employee ID from code
+        Long employeeId = userRepository.findIdByEmployeeCode(employeeCode);
+        if (employeeId == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Employee ID not found for code: " + employeeCode);
+        }
+        
+        // Fetch payrolls using employee ID
+        List<EmployeePayroll> payrolls = employeePayrollRepository.findByEmployee_Id(employeeId);
+        if (payrolls.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No payslips found for employee code: " + employeeCode);
         }
         return ResponseEntity.ok(payrolls);
     }
