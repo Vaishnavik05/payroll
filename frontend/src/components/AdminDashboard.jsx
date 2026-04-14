@@ -144,8 +144,8 @@ export default function AdminDashboard() {
     };
 
     return (
-      <div className="dashboard-stats">
-        <h2>System Overview</h2>
+      <>
+        <h2>Admin Overview</h2>
         <div className="stats-grid">
           <div className="stat-card clickable" onClick={() => handleStatClick("users")}>
             <div className="stat-icon">
@@ -162,19 +162,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           
-          <div className="stat-card clickable" onClick={() => setActiveForm("payroll")}>
-            <div className="stat-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="12" y1="1" x2="12" y2="23"/>
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-              </svg>
-            </div>
-            <div className="stat-content">
-              <h3>{stats.totalPayrollsProcessed}</h3>
-              <p>Payrolls Processed</p>
-            </div>
-          </div>
-          
+                    
           <div className="stat-card">
             <div className="stat-icon">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -238,20 +226,8 @@ export default function AdminDashboard() {
             </div>
           </div>
           
-          <div className="stat-card">
-            <div className="stat-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                <polyline points="22 4 12 14.01 9 11.01"/>
-              </svg>
-            </div>
-            <div className="stat-content">
-              <h3>{stats.payrollProcessingRate.toFixed(1)}%</h3>
-              <p>Payroll Coverage</p>
-            </div>
-          </div>
-        </div>
-      </div>
+                  </div>
+      </>
     );
   };
 

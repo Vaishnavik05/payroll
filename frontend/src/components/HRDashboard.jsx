@@ -483,19 +483,7 @@ export default function HRDashboard() {
             </div>
           </div>
           
-          <div className="stat-card clickable" onClick={() => handleStatClick("pending")}>
-            <div className="stat-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10"/>
-                <polyline points="12 6 12 12 16 14"/>
-              </svg>
-            </div>
-            <div className="stat-content">
-              <h3>{stats.pendingSalaries}</h3>
-              <p>Pending Salaries</p>
-            </div>
-          </div>
-        </div>
+                  </div>
       </>
     );
   };
@@ -512,7 +500,7 @@ export default function HRDashboard() {
             setViewMode("");
           }}
         >
-          Add Employee
+          Create Employee
         </button>
         <button 
           className={`nav-btn ${activeForm === "create" ? "active" : ""}`}
@@ -530,7 +518,7 @@ export default function HRDashboard() {
             setViewMode("");
           }}
         >
-          Update Salary Structure
+          Update Salary
         </button>
         <button 
           className={`nav-btn ${activeForm === "view" ? "active" : ""}`}
@@ -539,7 +527,7 @@ export default function HRDashboard() {
             setViewMode("");
           }}
         >
-          View Salary Structures
+          View Salary By Dept
         </button>
         <button 
           className={`nav-btn ${activeForm === "deduction" ? "active" : ""}`}

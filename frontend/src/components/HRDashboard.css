@@ -1,9 +1,10 @@
 .hr-dashboard {
   padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
   background: #f8f9fa;
   min-height: 100vh;
+  box-sizing: border-box;
 }
 
 .data-view {
