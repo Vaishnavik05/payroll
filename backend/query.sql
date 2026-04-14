@@ -46,9 +46,7 @@ CREATE TABLE payroll_cycle (
     end_date DATE,
     payment_date DATE,
     status ENUM('DRAFT','PROCESSING','COMPLETED','CANCELLED') DEFAULT 'DRAFT',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    total_amount DECIMAL(12,2) DEFAULT 0,
-    total_employees INT DEFAULT 0
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 

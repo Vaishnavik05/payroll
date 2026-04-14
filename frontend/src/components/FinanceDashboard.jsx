@@ -796,27 +796,29 @@ tax calculations, deductions, and other payroll information.
 
     if (loading) {
       return (
-        <div className="dashboard-stats">
+        <>
           <h2>Finance Overview</h2>
           <div className="loading-message">Loading finance data...</div>
-        </div>
+        </>
       );
     }
 
     if (error) {
       return (
-        <div className="dashboard-stats">
+        <>
           <h2>Finance Overview</h2>
           <div className="error-message">
             <p>Error: {error}</p>
-            <button onClick={fetchFinanceStats} className="retry-btn">Retry</button>
+            <button className="retry-btn" onClick={fetchFinanceStats}>
+              Retry
+            </button>
           </div>
-        </div>
+        </>
       );
     }
 
     return (
-      <div className="dashboard-stats">
+      <>
         <h2>Finance Overview</h2>
         <div className="stats-grid">
           <div className="stat-card clickable" onClick={() => handleStatCardClick('total')}>
@@ -898,7 +900,7 @@ tax calculations, deductions, and other payroll information.
             </div>
           </div>
         </div>
-      </div>
+      </>
     );
   };
 

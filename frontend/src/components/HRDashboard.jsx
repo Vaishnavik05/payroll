@@ -439,7 +439,7 @@ export default function HRDashboard() {
 
   const renderStats = () => {
     return (
-      <div className="dashboard-stats">
+      <>
         <h2>Dashboard Overview</h2>
         <div className="stats-grid">
           <div className="stat-card clickable" onClick={() => handleStatClick("employees")}>
@@ -496,7 +496,7 @@ export default function HRDashboard() {
             </div>
           </div>
         </div>
-      </div>
+      </>
     );
   };
 

@@ -26,14 +26,15 @@
 
 /* Employee Code Form */
 .employee-code-form {
-  background: white;
+  background: #f8f9fa;
   border-radius: 16px;
   padding: 32px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   margin-bottom: 30px;
   max-width: 500px;
   margin-left: auto;
   margin-right: auto;
+  border: 1px solid #e9ecef;
 }
 
 .input-group {
@@ -60,8 +61,8 @@
 
 .employee-code-input:focus {
   outline: none;
-  border-color: #1976d2;
-  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+  border-color: #dee2e6;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
 }
 
 .employee-code-input:disabled {
@@ -71,9 +72,9 @@
 }
 
 .submit-btn {
-  background: #1976d2;
-  color: white;
-  border: none;
+  background: #f8f9fa;
+  color: #333;
+  border: 1px solid #e9ecef;
   padding: 12px 24px;
   border-radius: 8px;
   font-size: 16px;
@@ -84,7 +85,7 @@
 }
 
 .submit-btn:hover:not(:disabled) {
-  background: #1565c0;
+  background: #e9ecef;
   transform: translateY(-2px);
 }
 

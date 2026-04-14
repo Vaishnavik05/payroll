@@ -3,6 +3,7 @@ import com.corporate.payroll.entity.User;
 import com.corporate.payroll.repository.UserRepository;
 import com.corporate.payroll.enums.Role;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
