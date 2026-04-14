@@ -482,8 +482,7 @@ export default function HRDashboard() {
               <p>Average Salary</p>
             </div>
           </div>
-          
-                  </div>
+        </div>
       </>
     );
   };
